@@ -1,0 +1,45 @@
+settings:
+
+  create-team: false
+
+  text:
+    lines:
+      - "<white>ᴀᴠɢ ᴘʀᴏʙ </white>{statistic:avg-probability:colored}<gray> | <white>ᴀᴠɢ ᴄᴏɴꜰ </gray>{statistic:avg-confidence:colored}"
+      - "{history:last-5}"
+
+    format:
+      probability: "0.000%"
+      confidence: "0.000%"
+
+    history:
+      separator: " "
+
+  text-display:
+    y-offset: 2.45
+    text-scale: 0.65
+    translation-y: 0.55
+    background-color: 0
+    shadow: true
+
+  armor-stand:
+    y-offset: 0.38
+    line-spacing: 0.26
+
+reload:
+
+  on-start:
+    - "[msg] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Начата перезагрузка аддона..."
+    - "[bar] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Начата перезагрузка..."
+    - "[sound] block.note_block.pling;1.0;1.0"
+
+  on-finish:
+    - "[msg] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Аддон перезагружен!"
+    - "[bar] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Аддон успешно перезагружен!"
+    - "[sound] entity.player.levelup;1.0;1.0"
+
+synchronization:
+
+  on-resync:
+    - "[msg] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Успешно синхронизированы голограммы для: <gradient:#782DFF:#9A2DFF>{synced-for}</gradient>"
+    - "[bar] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Голограммы синхронизированы для: <gradient:#782DFF:#9A2DFF>{synced-for}</gradient>"
+    - "[sound] entity.player.levelup;1.0;1.0"
