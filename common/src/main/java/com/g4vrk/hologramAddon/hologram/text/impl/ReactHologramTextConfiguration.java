@@ -12,14 +12,13 @@ import java.util.Locale;
 public final class ReactHologramTextConfiguration {
 
     private static final List<String> DEFAULT_LINES = List.of(
-            "<gray>ᴀᴠɢ ᴘʀᴏʙ </gray>{statistic:avg-probability:colored}<gray> | ᴀᴠɢ ᴄᴏɴꜰ </gray>{statistic:avg-confidence:colored}",
+            "<gray>ᴀᴠɢ ᴘʀᴏʙ </gray>{statistic:avg-probability:colored}<gray> | ᴍᴀx ᴘʀᴏʙ </gray>{statistic:max-probability:colored}",
             "{history:last-5}"
     );
 
     private final List<String> lines;
 
     private final String probabilityFormat;
-    private final String confidenceFormat;
 
     private final String historySeparator;
 
@@ -35,11 +34,6 @@ public final class ReactHologramTextConfiguration {
                         .getString("0.000%")
         );
 
-        this.confidenceFormat = validateFormat(
-                node.node("format", "confidence")
-                        .getString("0.000%")
-        );
-
         this.historySeparator = node
                 .node("history", "separator")
                 .getString(" ");
@@ -51,10 +45,6 @@ public final class ReactHologramTextConfiguration {
 
     public @NotNull String probabilityFormat() {
         return this.probabilityFormat;
-    }
-
-    public @NotNull String confidenceFormat() {
-        return this.confidenceFormat;
     }
 
     public @NotNull String historySeparator() {

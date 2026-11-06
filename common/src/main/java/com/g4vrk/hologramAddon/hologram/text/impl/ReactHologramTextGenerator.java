@@ -2,7 +2,6 @@ package com.g4vrk.hologramAddon.hologram.text.impl;
 
 import com.g4vrk.hologramAddon.hologram.text.HologramTextGenerator;
 import com.g4vrk.react.React;
-import com.g4vrk.react.color.resolver.impl.ConfidenceColorResolver;
 import com.g4vrk.react.color.resolver.impl.ProbabilityColorResolver;
 import com.g4vrk.react.history.entry.InferenceHistoryEntry;
 import com.g4vrk.react.player.ReactPlayer;
@@ -31,16 +30,11 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<R
     private final ProbabilityColorResolver probabilityColorResolver =
             new ProbabilityColorResolver();
 
-    private final ConfidenceColorResolver confidenceColorResolver =
-            new ConfidenceColorResolver();
-
     private final Serializers serializers = React.INSTANCE.getSerializers();
 
     private final ReactHologramTextConfiguration config;
 
     private final ThreadLocal<DecimalFormat> probabilityFormatter;
-
-    private final ThreadLocal<DecimalFormat> confidenceFormatter;
 
     public ReactHologramTextGenerator(
             @NotNull ReactHologramTextConfiguration config
@@ -50,12 +44,6 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<R
         this.probabilityFormatter = ThreadLocal.withInitial(
                 () -> createFormatter(
                         config.probabilityFormat()
-                )
-        );
-
-        this.confidenceFormatter = ThreadLocal.withInitial(
-                () -> createFormatter(
-                        config.confidenceFormat()
                 )
         );
     }
@@ -182,47 +170,11 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<R
 
         return switch (parts[1]) {
 
-            case "avg-probability" -> {
+            case "avg-probability" -> this.probability(statistic.averageProbability(), colored);
 
-                final double value =
-                        statistic.averageProbability();
+            case "max-probability" -> this.probability(statistic.maxProbability(), colored);
 
-                Component component =
-                        Component.text(
-                                this.formatProbability(value)
-                        );
-
-                if (colored) {
-                    component = component.color(
-                            this.probabilityColorResolver.resolve(
-                                    value
-                            )
-                    );
-                }
-
-                yield component;
-            }
-
-            case "avg-confidence" -> {
-
-                final double value =
-                        statistic.averageConfidence();
-
-                Component component =
-                        Component.text(
-                                this.formatConfidence(value)
-                        );
-
-                if (colored) {
-                    component = component.color(
-                            this.confidenceColorResolver.resolve(
-                                    value
-                            )
-                    );
-                }
-
-                yield component;
-            }
+            case "min-probability" -> this.probability(statistic.minProbability(), colored);
 
             default -> null;
         };
@@ -307,18 +259,18 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<R
         return this.serializers.universalSerializer().serialize(text);
     }
 
+    private @NotNull Component probability(
+            double value,
+            boolean colored
+    ) {
+        final Component component = Component.text(this.formatProbability(value));
+        return colored ? component.color(this.probabilityColorResolver.resolve(value)) : component;
+    }
+
     private @NotNull String formatProbability(
             double value
     ) {
         return this.probabilityFormatter
-                .get()
-                .format(value);
-    }
-
-    private @NotNull String formatConfidence(
-            double value
-    ) {
-        return this.confidenceFormatter
                 .get()
                 .format(value);
     }

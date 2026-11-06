@@ -4,12 +4,11 @@ settings:
 
   text:
     lines:
-      - "<white>ᴀᴠɢ ᴘʀᴏʙ </white>{statistic:avg-probability:colored}<gray> | <white>ᴀᴠɢ ᴄᴏɴꜰ </gray>{statistic:avg-confidence:colored}"
+      - "<white>ᴀᴠɢ ᴘʀᴏʙ </white>{statistic:avg-probability:colored}<gray> | <white>ᴍᴀx ᴘʀᴏʙ </white>{statistic:max-probability:colored}"
       - "{history:last-5}"
 
     format:
-      probability: "0.000%"
-      confidence: "0.000%"
+      probability: "0.000%"
 
     history:
       separator: " "

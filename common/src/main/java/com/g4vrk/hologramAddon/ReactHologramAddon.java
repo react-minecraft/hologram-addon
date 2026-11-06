@@ -1,7 +1,7 @@
 package com.g4vrk.hologramAddon;
 
-import com.g4vrk.functionalConfiguration.Config;
-import com.g4vrk.functionalConfiguration.loader.YamlConfigLoader;
+import com.g4vrk.config.Config;
+import com.g4vrk.config.loader.YamlConfigLoader;
 import com.g4vrk.hologramAddon.command.argument.HologramReloadArgument;
 import com.g4vrk.hologramAddon.command.argument.HologramResyncArgument;
 import com.g4vrk.hologramAddon.hologram.TargetedHologram;
