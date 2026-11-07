@@ -36,8 +36,8 @@
 
 | Команда | Право |
 |---|---|
-| `/react hologram reload` | без отдельного права (только базовое `/react`) |
-| `/react hologram resync [игроки]` | без отдельного права (только базовое `/react`) |
+| `/react hologram reload` | `react.hologram.reload` |
+| `/react hologram resync [игроки]` | `react.hologram.resync` |
 
 ## Конфиг
 

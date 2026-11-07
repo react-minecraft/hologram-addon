@@ -47,6 +47,7 @@ public final class HologramResyncArgument extends LocalArgument implements Reloa
     @Override
     public @NotNull Command.Builder<CommandSender> build() {
         return builderFactory.create()
+                .permission("react.hologram.resync")
                 .literal("resync")
                 .optional("targets", MultiplePlayerSelectorParser.multiplePlayerSelectorParser())
                 .handler(context -> {
