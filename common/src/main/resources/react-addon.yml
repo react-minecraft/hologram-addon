@@ -3,4 +3,6 @@ version: '${version}'
 
 mainClass: com.g4vrk.hologramAddon.ReactHologramAddon
 
+api-version: 2
+
 description: '${description}'
