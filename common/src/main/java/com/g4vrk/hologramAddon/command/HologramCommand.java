@@ -63,21 +63,27 @@ public final class HologramCommand {
     }
 
     public void register(final @NotNull CommandRegistrar commands) {
-        commands.register(ROOT, commands.command(ROOT)
-                .literal(LITERAL)
-                .literal("reload")
-                .permission("react.hologram.reload")
-                .handler(context -> reload(context.sender())));
+        commands.register(
+                ROOT,
+                commands.command(ROOT)
+                        .literal(LITERAL)
+                        .literal("reload")
+                        .permission("react.hologram.reload")
+                        .handler(context -> reload(context.sender()))
+        );
 
-        commands.register(ROOT, commands.command(ROOT)
-                .literal(LITERAL)
-                .literal("resync")
-                .permission("react.hologram.resync")
-                .optional(TARGETS, MultiplePlayerSelectorParser.multiplePlayerSelectorParser())
-                .handler(context -> resync(
-                        context.sender(),
-                        context.<MultiplePlayerSelector>optional(TARGETS).orElse(null)
-                )));
+        commands.register(
+                ROOT,
+                commands.command(ROOT)
+                        .literal(LITERAL)
+                        .literal("resync")
+                        .permission("react.hologram.resync")
+                        .optional(TARGETS, MultiplePlayerSelectorParser.multiplePlayerSelectorParser())
+                        .handler(context -> resync(
+                                context.sender(),
+                                context.<MultiplePlayerSelector>optional(TARGETS).orElse(null)
+                        ))
+        );
     }
 
     private void reload(final @NotNull CommandSender sender) {
