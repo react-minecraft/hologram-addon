@@ -6,3 +6,7 @@ mainClass: com.g4vrk.hologramAddon.ReactHologramAddon
 api-version: 2
 
 description: '${description}'
+
+github:
+  repository: react-minecraft/hologram-addon
+  updatable: true
