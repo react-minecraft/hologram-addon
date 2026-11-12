@@ -18,6 +18,7 @@ import com.g4vrk.react.api.player.TrackedPlayer;
 import com.g4vrk.schedula.task.TickSchedule;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
@@ -28,7 +29,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Shows each player's recent inference results in a hologram above their head.
@@ -42,7 +42,8 @@ public final class ReactHologramAddon extends JavaAddon {
 
     private final HologramViewerManager viewerManager = new HologramViewerManager();
     private final Map<UUID, TargetedHologram> holograms = new ConcurrentHashMap<>();
-    private final AtomicBoolean reloading = new AtomicBoolean();
+    private @Nullable CompletableFuture<Void> pendingReload;
+    private boolean disabled;
 
     private volatile HologramFactory hologramFactory;
     private volatile HologramTextGenerator<TrackedPlayer> hologramTextGenerator;
@@ -50,6 +51,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
     @Override
     public void onEnable() {
+
         if (!Files.exists(directory().resolve(MAIN_CONFIG))) {
             saveResource(MAIN_CONFIG, false);
         }
@@ -76,33 +78,52 @@ public final class ReactHologramAddon extends JavaAddon {
                 configuration.main()
         );
         this.command.register(environment.commands());
+
     }
 
     @Override
     public void onDisable() {
+
+        final CompletableFuture<Void> reload;
+        synchronized (this) {
+            this.disabled = true;
+            reload = this.pendingReload;
+            this.pendingReload = null;
+        }
+        if (reload != null) {
+            reload.cancel(false);
+        }
+
         this.holograms.values().forEach(TargetedHologram::hide);
         this.holograms.clear();
         this.viewerManager.receivers().clear();
+
     }
 
     public void resync(final @NotNull Player player) {
+
         for (final TargetedHologram hologram : this.holograms.values()) {
             hologram.hideFrom(player);
         }
 
         destroyHologram(player.getUniqueId());
+
     }
 
     public void destroyHologram(final @NotNull UUID uuid) {
+
         final TargetedHologram removed = this.holograms.remove(uuid);
 
         if (removed != null) {
             removed.hide();
         }
+
     }
 
     private @NotNull TargetedHologram hologram(final @NotNull Player target) {
+
         return this.holograms.computeIfAbsent(target.getUniqueId(), ignored -> this.hologramFactory.create(target));
+
     }
 
     /**
@@ -110,37 +131,41 @@ public final class ReactHologramAddon extends JavaAddon {
      *
      * @return completes once the new settings are in use
      */
-    public @NotNull CompletableFuture<Void> reloadAsync() {
-        if (!this.reloading.compareAndSet(false, true)) {
+    public synchronized @NotNull CompletableFuture<Void> reloadAsync() {
+
+        if (this.disabled) {
+            return CompletableFuture.failedFuture(new IllegalStateException("Hologram addon is disabled"));
+        }
+        if (this.pendingReload != null && !this.pendingReload.isDone()) {
             return CompletableFuture.failedFuture(new IllegalStateException("Hologram addon is already reloading"));
         }
 
-        return CompletableFuture.supplyAsync(this::load)
-                .thenCompose(configuration -> {
-                    final CompletableFuture<Void> applied = new CompletableFuture<>();
-                    environment().scheduler().schedule(() -> {
-                        try {
-                            this.command.reload(configuration.main());
-                            this.holograms.values().forEach(TargetedHologram::hide);
-                            this.holograms.clear();
-                            this.hologramFactory = configuration.hologramFactory();
-                            this.hologramTextGenerator = configuration.textGenerator();
-                            applied.complete(null);
-                        } catch (final Throwable failure) {
-                            applied.completeExceptionally(failure);
-                        }
-                    }, TickSchedule.instant());
-                    return applied;
-                })
-                .whenComplete((ignored, failure) -> {
-                    this.reloading.set(false);
-                    if (failure != null) {
-                        logger().error("Could not reload the hologram addon", failure);
-                    }
-                });
+        final CompletableFuture<Void> result = CompletableFuture.supplyAsync(this::load).thenAcceptAsync(this::applyReload, task -> environment().scheduler().schedule(task, TickSchedule.instant()));
+        this.pendingReload = result;
+        result.whenComplete((ignored, failure) -> {
+            if (failure != null && !result.isCancelled()) {
+                logger().error("Could not reload the hologram addon", failure);
+            }
+        });
+        return result;
+
+    }
+
+    private synchronized void applyReload(final @NotNull LoadedModules configuration) {
+
+        if (this.disabled) {
+            return;
+        }
+        this.command.reload(configuration.main());
+        this.holograms.values().forEach(TargetedHologram::hide);
+        this.holograms.clear();
+        this.hologramFactory = configuration.hologramFactory();
+        this.hologramTextGenerator = configuration.textGenerator();
+
     }
 
     private @NotNull LoadedModules load() {
+
         final CommentedConfigurationNode main;
 
         try {
@@ -163,6 +188,7 @@ public final class ReactHologramAddon extends JavaAddon {
                         environment().text()
                 )
         );
+
     }
 
     private record LoadedModules(
