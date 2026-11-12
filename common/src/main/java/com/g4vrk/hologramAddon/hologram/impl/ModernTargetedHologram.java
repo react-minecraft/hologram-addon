@@ -9,7 +9,11 @@ import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.util.Vector3f;
-import com.github.retrooper.packetevents.wrapper.play.server.*;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetPassengers;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
@@ -39,7 +43,9 @@ public final class ModernTargetedHologram extends TargetedHologram {
             @NotNull Player target,
             @NotNull ModernHologramConfiguration config
     ) {
+
         this(target, config, true);
+
     }
 
     public ModernTargetedHologram(
@@ -47,10 +53,12 @@ public final class ModernTargetedHologram extends TargetedHologram {
             @NotNull ModernHologramConfiguration config,
             boolean createTeam
     ) {
+
         super(target);
 
         this.config = config;
         this.createTeam = createTeam;
+
     }
 
     @Override
@@ -58,6 +66,7 @@ public final class ModernTargetedHologram extends TargetedHologram {
             @NotNull Player viewer,
             @NotNull List<Component> lines
     ) {
+
         final UUID viewerId = viewer.getUniqueId();
 
         final boolean firstDisplay = this.spawnedFor.add(viewerId);
@@ -67,6 +76,7 @@ public final class ModernTargetedHologram extends TargetedHologram {
         }
 
         this.update(viewer, lines);
+
     }
 
     private void spawn(@NotNull Player viewer) {
@@ -99,6 +109,7 @@ public final class ModernTargetedHologram extends TargetedHologram {
         );
 
         this.sendSetPassengersPacket(viewer);
+
     }
 
     private void sendSetPassengersPacket(
@@ -181,6 +192,7 @@ public final class ModernTargetedHologram extends TargetedHologram {
                         metadata
                 )
         );
+
     }
 
     @Override
