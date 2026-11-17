@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -29,17 +30,20 @@ public final class HistoryEntryAddedListener {
     private final Function<Player, TargetedHologram> hologramFactory;
     private final Supplier<HologramTextGenerator<TrackedPlayer>> hologramTextGeneratorSupplier;
     private final Scheduler scheduler;
+    private final Consumer<Player> removeRevokedViewer;
 
     public HistoryEntryAddedListener(
             final @NotNull Supplier<Set<UUID>> viewersSupplier,
             final @NotNull Function<Player, TargetedHologram> hologramFactory,
             final @NotNull Supplier<HologramTextGenerator<TrackedPlayer>> hologramTextGeneratorSupplier,
-            final @NotNull Scheduler scheduler
+            final @NotNull Scheduler scheduler,
+            final @NotNull Consumer<Player> removeRevokedViewer
     ) {
         this.viewersSupplier = viewersSupplier;
         this.hologramFactory = hologramFactory;
         this.hologramTextGeneratorSupplier = hologramTextGeneratorSupplier;
         this.scheduler = scheduler;
+        this.removeRevokedViewer = removeRevokedViewer;
     }
 
     @Subscribe(priority = EventPriority.MONITOR)
@@ -55,13 +59,23 @@ public final class HistoryEntryAddedListener {
         }
 
         final TargetedHologram hologram = this.hologramFactory.apply(target);
+        final Set<UUID> viewers = this.viewersSupplier.get();
 
-        for (final UUID uuid : this.viewersSupplier.get()) {
+        for (final UUID uuid : viewers) {
             final Player viewer = Bukkit.getPlayer(uuid);
 
-            if (viewer == null
-                    || !viewer.isOnline()
-                    || !viewer.getWorld().equals(target.getWorld())) {
+            if (viewer == null || !viewer.isOnline()) {
+                viewers.remove(uuid);
+                continue;
+            }
+
+            if (!viewer.hasPermission("react.hologram.view")) {
+                this.removeRevokedViewer.accept(viewer);
+                continue;
+            }
+
+            if (!viewer.getWorld().equals(target.getWorld())) {
+                hologram.removeViewer(viewer);
                 continue;
             }
 

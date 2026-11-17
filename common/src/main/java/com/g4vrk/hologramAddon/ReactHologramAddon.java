@@ -66,7 +66,8 @@ public final class ReactHologramAddon extends JavaAddon {
                 this.viewerManager::receivers,
                 this::hologram,
                 () -> this.hologramTextGenerator,
-                environment.scheduler()
+                environment.scheduler(),
+                this::removeRevokedViewer
         ));
         environment.listeners().register(new HologramResyncListener(this::resync));
 
@@ -100,13 +101,30 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
+    /**
+     * Clears stale displays after a change in this player's session or position.
+     *
+     * @param player player whose viewer state is cleared
+     */
     public void resync(final @NotNull Player player) {
 
+        this.removeViewer(player);
+        this.destroyHologram(player.getUniqueId());
+
+    }
+
+    private void removeViewer(final @NotNull Player player) {
+
         for (final TargetedHologram hologram : this.holograms.values()) {
-            hologram.hideFrom(player);
+            hologram.removeViewer(player);
         }
 
-        destroyHologram(player.getUniqueId());
+    }
+
+    private void removeRevokedViewer(final @NotNull Player player) {
+
+        this.viewerManager.remove(player.getUniqueId());
+        this.removeViewer(player);
 
     }
 
