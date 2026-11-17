@@ -1,0 +1,52 @@
+settings:
+
+  create-team: false
+
+  text:
+    lines:
+      - "<white>ᴀᴠɢ ᴘʀᴏʙ </white>{statistic:avg-probability:colored}<gray> | <white>ᴍᴀx ᴘʀᴏʙ </white>{statistic:max-probability:colored}"
+      - "{history:last-5}"
+
+    format:
+      probability: "0.000%"
+
+
+    history:
+      separator: " "
+
+  text-display:
+    y-offset: 2.45
+    text-scale: 0.65
+    translation-y: 0.55
+    background-color: 0
+    shadow: true
+
+  armor-stand:
+    y-offset: 0.38
+    line-spacing: 0.26
+
+reload:
+
+  on-start:
+    - "[msg] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Reloading the addon..."
+    - "[bar] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Reloading..."
+    - "[sound] block.note_block.pling;1.0;1.0"
+
+  on-finish:
+    - "[msg] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Addon reloaded!"
+    - "[bar] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Addon reloaded!"
+    - "[sound] entity.player.levelup;1.0;1.0"
+
+  on-failure:
+    - "[msg] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Reload failed. Check the console for details."
+    - "[sound] block.note_block.bass;1.0;0.8"
+
+synchronization:
+
+  on-resync:
+    - "[msg] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Synchronized holograms for: <gradient:#782DFF:#9A2DFF>{synced-for}</gradient>"
+    - "[bar] <b><gradient:#782DFF:#9A2DFF>⭐ ʀᴇᴀᴄᴛ-ʜᴏʟᴏ</gradient></b> <gray>»</gray> <white>Holograms synchronized for: <gradient:#782DFF:#9A2DFF>{synced-for}</gradient>"
+    - "[sound] entity.player.levelup;1.0;1.0"
+
+# Do not change the configuration version.
+config-version: 1

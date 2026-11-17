@@ -21,10 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -51,10 +49,6 @@ public final class ReactHologramAddon extends JavaAddon {
 
     @Override
     public void onEnable() {
-
-        if (!Files.exists(directory().resolve(MAIN_CONFIG))) {
-            saveResource(MAIN_CONFIG, false);
-        }
 
         final AddonEnvironment environment = environment();
         final LoadedModules configuration = load();
@@ -185,9 +179,13 @@ public final class ReactHologramAddon extends JavaAddon {
     private @NotNull LoadedModules load() {
 
         final CommentedConfigurationNode main;
+        final String language = "en".equalsIgnoreCase(System.getProperty("user.language")) ? "en" : "ru";
 
         try {
-            main = YamlConfigurationLoader.builder().path(directory().resolve(MAIN_CONFIG)).build().load();
+            main = environment().configs().file(MAIN_CONFIG, ConfigurationNode.class)
+                    .defaults(getClass().getClassLoader(), language + "/" + MAIN_CONFIG)
+                    .build()
+                    .loadNode();
         } catch (final IOException exception) {
             throw new IllegalStateException("Could not load " + MAIN_CONFIG, exception);
         }
@@ -215,4 +213,5 @@ public final class ReactHologramAddon extends JavaAddon {
             @NotNull HologramTextGenerator<TrackedPlayer> textGenerator
     ) {
     }
+
 }

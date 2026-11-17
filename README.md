@@ -52,9 +52,9 @@ settings:
 
 ## Установка
 
-1. Соберите аддон или скачайте jar из [GitHub Nightly](https://github.com/react-minecraft/hologram-addon/releases/tag/nightly). Нужен React с API 2.
+1. Соберите аддон или скачайте jar из [GitHub Releases](https://github.com/react-minecraft/hologram-addon/releases/latest). Нужен React с API 2.
 2. Положите `hologram-addon-<версия>.jar` в `plugins/React/addons/`.
-3. Перезапустите сервер или выполните `/react reboot addons`. Конфиг появится в `plugins/React/addons/ReactHologramAddon/`.
+3. Перезапустите сервер или выполните `/react reboot addons`. Конфиг появится в `plugins/React/addons/hologram-addon/`.
 
 ## Сборка
 

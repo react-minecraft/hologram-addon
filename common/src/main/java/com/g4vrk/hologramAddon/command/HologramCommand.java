@@ -10,7 +10,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.incendo.cloud.bukkit.data.MultiplePlayerSelector;
 import org.incendo.cloud.bukkit.parser.selector.MultiplePlayerSelectorParser;
+import org.incendo.cloud.key.CloudKey;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
@@ -31,7 +33,7 @@ public final class HologramCommand {
 
     private static final String ROOT = "react";
     private static final String LITERAL = "hologram";
-    private static final String TARGETS = "targets";
+    private static final CloudKey<MultiplePlayerSelector> TARGETS = CloudKey.of("targets", MultiplePlayerSelector.class);
 
     private final ActionParser<Audience> parser;
     private final Scheduler scheduler;
@@ -47,22 +49,28 @@ public final class HologramCommand {
             final @NotNull Consumer<Player> resync,
             final @NotNull ConfigurationNode config
     ) {
+
         this.parser = parser;
         this.scheduler = scheduler;
         this.reload = reload;
         this.resync = resync;
         this.reload(config);
+
     }
 
     public void reload(final @NotNull ConfigurationNode config) {
+
         this.messages = new Messages(
                 actions(config, "reload", "on-start"),
                 actions(config, "reload", "on-finish"),
+                actions(config, "reload", "on-failure"),
                 actions(config, "synchronization", "on-resync")
         );
+
     }
 
     public void register(final @NotNull CommandRegistrar commands) {
+
         commands.register(
                 ROOT,
                 commands.command(ROOT)
@@ -81,20 +89,32 @@ public final class HologramCommand {
                         .optional(TARGETS, MultiplePlayerSelectorParser.multiplePlayerSelectorParser())
                         .handler(context -> resync(
                                 context.sender(),
-                                context.<MultiplePlayerSelector>optional(TARGETS).orElse(null)
+                                context.optional(TARGETS).orElse(null)
                         ))
         );
+
     }
 
     private void reload(final @NotNull CommandSender sender) {
+
         this.messages.reloadStart().run(sender);
-        this.reload.get().thenRun(() -> this.scheduler.schedule(
-                () -> this.messages.reloadFinish().run(sender),
-                TickSchedule.instant()
-        ));
+        this.reload.get().whenComplete((ignored, failure) -> {
+            final ExecutableActionList<? super Audience> response = failure == null ? this.messages.reloadFinish() : this.messages.reloadFailure();
+            final Runnable notify = () -> response.run(sender);
+            if (sender instanceof Player player) {
+                this.scheduler.scheduleEntity(player, notify, TickSchedule.instant());
+            } else {
+                this.scheduler.schedule(notify, TickSchedule.instant());
+            }
+        });
+
     }
 
-    private void resync(final @NotNull CommandSender sender, final MultiplePlayerSelector selector) {
+    private void resync(
+            final @NotNull CommandSender sender,
+            final @Nullable MultiplePlayerSelector selector
+    ) {
+
         final Collection<Player> targets;
 
         if (selector != null) {
@@ -118,22 +138,26 @@ public final class HologramCommand {
 
         final String joined = String.join(", ", names);
         this.messages.resynced().run(sender, value -> value.replace("{synced-for}", joined));
+
     }
 
-    private ExecutableActionList<? super Audience> actions(
+    private @NotNull ExecutableActionList<? super Audience> actions(
             final @NotNull ConfigurationNode config,
             final @NotNull String... path
     ) {
+
         try {
             return this.parser.parseAll(config.node((Object[]) path).getList(String.class, List.of()));
         } catch (final SerializationException exception) {
             throw new IllegalStateException("Could not read the actions at " + String.join(".", path), exception);
         }
+
     }
 
     private record Messages(
             @NotNull ExecutableActionList<? super Audience> reloadStart,
             @NotNull ExecutableActionList<? super Audience> reloadFinish,
+            @NotNull ExecutableActionList<? super Audience> reloadFailure,
             @NotNull ExecutableActionList<? super Audience> resynced
     ) {
     }
