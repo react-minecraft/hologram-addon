@@ -213,7 +213,7 @@ public final class ReactHologramAddon extends JavaAddon {
                 new HologramFactory(
                         new ModernHologramConfiguration(settings.node("text-display")),
                         new LegacyHologramConfiguration(settings.node("armor-stand")),
-                        settings.node("create-team").getBoolean(true)
+                        settings.node("create-team").getBoolean(false)
                 ),
                 new ReactHologramTextGenerator(
                         new ReactHologramTextConfiguration(settings.node("text")),
