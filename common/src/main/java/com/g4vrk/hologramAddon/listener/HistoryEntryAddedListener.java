@@ -9,12 +9,14 @@ import com.g4vrk.react.api.player.TrackedPlayer;
 import com.g4vrk.schedula.task.TickSchedule;
 import com.g4vrk.schedula.task.scheduler.Scheduler;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
+import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -26,24 +28,22 @@ import java.util.function.Supplier;
  */
 public final class HistoryEntryAddedListener {
 
+    private static final boolean LEGACY_TRACKING = legacyTracking();
     private final Supplier<Set<UUID>> viewersSupplier;
     private final Function<Player, TargetedHologram> hologramFactory;
     private final Supplier<HologramTextGenerator<TrackedPlayer>> hologramTextGeneratorSupplier;
     private final Scheduler scheduler;
-    private final Consumer<Player> removeRevokedViewer;
 
     public HistoryEntryAddedListener(
             final @NotNull Supplier<Set<UUID>> viewersSupplier,
             final @NotNull Function<Player, TargetedHologram> hologramFactory,
             final @NotNull Supplier<HologramTextGenerator<TrackedPlayer>> hologramTextGeneratorSupplier,
-            final @NotNull Scheduler scheduler,
-            final @NotNull Consumer<Player> removeRevokedViewer
+            final @NotNull Scheduler scheduler
     ) {
         this.viewersSupplier = viewersSupplier;
         this.hologramFactory = hologramFactory;
         this.hologramTextGeneratorSupplier = hologramTextGeneratorSupplier;
         this.scheduler = scheduler;
-        this.removeRevokedViewer = removeRevokedViewer;
     }
 
     @Subscribe(priority = EventPriority.MONITOR)
@@ -63,36 +63,37 @@ public final class HistoryEntryAddedListener {
             return;
         }
         final Set<UUID> viewers = this.viewersSupplier.get();
+        final List<Component> lines = this.hologramTextGeneratorSupplier.get().generate(player);
+        final long revision = hologram.nextRevision();
 
         for (final UUID uuid : viewers) {
             final Player viewer = Bukkit.getPlayer(uuid);
 
-            if (viewer == null || !viewer.isOnline()) {
+            if (viewer == null) {
                 viewers.remove(uuid);
                 continue;
             }
+            this.scheduler.scheduleEntity(viewer, () -> {
+                final boolean permitted = viewer.isOnline() && viewer.hasPermission("react.hologram.view");
+                final UUID viewerWorld = viewer.getWorld().getUID();
+                final boolean legacyTracking = !LEGACY_TRACKING || viewer.equals(target) || viewer.getTrackedPlayers().contains(target);
+                this.scheduler.scheduleEntity(target, () -> {
+                    final boolean tracking = LEGACY_TRACKING ? legacyTracking : viewer.equals(target) || target.getTrackedPlayers().contains(viewer);
+                    hologram.updateViewer(viewer, permitted && tracking && target.isOnline() && target.getWorld().getUID().equals(viewerWorld), lines, revision);
+                }, TickSchedule.instant());
+            }, TickSchedule.instant());
+        }
+    }
 
-            if (!viewer.hasPermission("react.hologram.view")) {
-                this.removeRevokedViewer.accept(viewer);
-                continue;
-            }
+    private static boolean legacyTracking() {
 
-            if (!viewer.getWorld().equals(target.getWorld())) {
-                hologram.removeViewer(viewer);
-                continue;
-            }
-
-            final boolean tracking = viewer.equals(target) || target.getTrackedPlayers().contains(viewer);
-
-            if (!tracking) {
-                hologram.removeViewer(viewer);
-                continue;
-            }
-
-            hologram.addViewer(viewer);
+        try {
+            Entity.class.getMethod("getTrackedPlayers");
+            return false;
+        } catch (final NoSuchMethodException ignored) {
+            return true;
         }
 
-        hologram.display(this.hologramTextGeneratorSupplier.get().generate(player));
     }
 
 }

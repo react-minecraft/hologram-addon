@@ -304,6 +304,23 @@ public final class LegacyTargetedHologram extends TargetedHologram {
     }
 
     @Override
+    protected void moveTo(final @NotNull Player viewer) {
+
+        final List<ArmorStandLine> stands = this.spawnedFor.get(viewer.getUniqueId());
+        if (stands == null || stands.isEmpty()) {
+            return;
+        }
+        final org.bukkit.Location targetLocation = this.target.getLocation();
+        final PlayerManager playerManager = PacketEvents.getAPI().getPlayerManager();
+        for (int index = 0; index < stands.size(); index++) {
+            final double y = targetLocation.getY() + this.config.yOffset() + (stands.size() - 1 - index) * this.config.lineSpacing();
+            final Location location = new Location(targetLocation.getX(), y, targetLocation.getZ(), 0F, 0F);
+            playerManager.sendPacket(viewer, new WrapperPlayServerEntityTeleport(stands.get(index).entityId, location, false));
+        }
+
+    }
+
+    @Override
     public void hideFrom(@NotNull Player viewer) {
 
         final List<ArmorStandLine> armorStands =

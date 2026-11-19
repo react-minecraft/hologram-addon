@@ -26,9 +26,7 @@ public class ConnectionListener implements Listener {
 
         final Player player = event.getPlayer();
 
-        if (player.hasPermission("react.hologram.view")) {
-            hologramViewerManager.add(player.getUniqueId());
-        }
+        hologramViewerManager.add(player.getUniqueId());
 
     }
 

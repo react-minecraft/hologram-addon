@@ -64,8 +64,7 @@ public final class ReactHologramAddon extends JavaAddon {
                 this.viewerManager::receivers,
                 this::hologram,
                 () -> this.hologramTextGenerator,
-                environment.scheduler(),
-                this::removeRevokedViewer
+                environment.scheduler()
         ));
         environment.listeners().register(new HologramResyncListener(this::resync));
 
@@ -82,7 +81,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
     private synchronized void registerOnlineViewer(final @NotNull Player player) {
 
-        if (!this.disabled && player.isOnline() && player.hasPermission("react.hologram.view")) {
+        if (!this.disabled && player.isOnline()) {
             this.viewerManager.add(player.getUniqueId());
         }
 
@@ -127,13 +126,6 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
-    private void removeRevokedViewer(final @NotNull Player player) {
-
-        this.viewerManager.remove(player.getUniqueId());
-        this.removeViewer(player);
-
-    }
-
     public void destroyHologram(final @NotNull UUID uuid) {
 
         final TargetedHologram removed = this.holograms.remove(uuid);
@@ -150,7 +142,15 @@ public final class ReactHologramAddon extends JavaAddon {
             return null;
         }
 
-        return this.holograms.computeIfAbsent(target.getUniqueId(), ignored -> this.hologramFactory.create(target));
+        return this.holograms.computeIfAbsent(target.getUniqueId(), ignored -> {
+            final TargetedHologram hologram = this.hologramFactory.create(target);
+            environment().scheduler().scheduleEntity(target, task -> {
+                if (!hologram.move()) {
+                    task.cancel();
+                }
+            }, TickSchedule.fixedRate(1));
+            return hologram;
+        });
 
     }
 

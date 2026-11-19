@@ -49,6 +49,15 @@ public final class VersionedTargetedHologram extends TargetedHologram {
     }
 
     @Override
+    protected void moveTo(final @NotNull Player viewer) {
+
+        if (!supportsTextDisplay(viewer)) {
+            this.legacy.moveTo(viewer);
+        }
+
+    }
+
+    @Override
     public void hideFrom(@NotNull Player viewer) {
         if (supportsTextDisplay(viewer)) {
             this.modern.hideFrom(viewer);
