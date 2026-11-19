@@ -49,9 +49,19 @@ public final class VersionedTargetedHologram extends TargetedHologram {
     }
 
     @Override
+    protected void prepareMove() {
+
+        this.modern.prepareMove();
+        this.legacy.prepareMove();
+
+    }
+
+    @Override
     protected void moveTo(final @NotNull Player viewer) {
 
-        if (!supportsTextDisplay(viewer)) {
+        if (supportsTextDisplay(viewer)) {
+            this.modern.moveTo(viewer);
+        } else {
             this.legacy.moveTo(viewer);
         }
 

@@ -120,11 +120,15 @@ public abstract class TargetedHologram implements Hologram {
         if (this.closed) {
             return false;
         }
+        this.prepareMove();
         for (final Player viewer : this.viewers) {
             this.moveTo(viewer);
         }
         return true;
 
+    }
+
+    protected void prepareMove() {
     }
 
     protected void moveTo(final @NotNull Player viewer) {

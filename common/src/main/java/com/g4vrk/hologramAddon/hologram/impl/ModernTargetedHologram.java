@@ -23,6 +23,7 @@ import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -37,6 +38,8 @@ public final class ModernTargetedHologram extends TargetedHologram {
     private final UUID entityUniqueId = UUID.randomUUID();
 
     private final Set<UUID> spawnedFor = new ObjectOpenHashSet<>();
+    private int[] lastPassengers = new int[0];
+    private boolean passengersChanged;
 
     private final String teamName = "mh_" + Integer.toUnsignedString(this.entityId, 36);
 
@@ -117,20 +120,47 @@ public final class ModernTargetedHologram extends TargetedHologram {
             @NotNull Player viewer
     ) {
 
+        PacketEvents.getAPI().getPlayerManager().sendPacket(
+                viewer,
+                new WrapperPlayServerSetPassengers(this.target.getEntityId(), this.passengers())
+        );
+
+    }
+
+    private int @NotNull [] passengers() {
+
         final List<Entity> existingPassengers = this.target.getPassengers();
         final int[] passengers = new int[existingPassengers.size() + 1];
         for (int index = 0; index < existingPassengers.size(); index++) {
             passengers[index] = existingPassengers.get(index).getEntityId();
         }
         passengers[existingPassengers.size()] = this.entityId;
+        return passengers;
 
-        PacketEvents.getAPI().getPlayerManager().sendPacket(
-                viewer,
-                new WrapperPlayServerSetPassengers(
-                        this.target.getEntityId(),
-                        passengers
-                )
-        );
+    }
+
+    @Override
+    protected void prepareMove() {
+
+        if (this.spawnedFor.isEmpty()) {
+            this.passengersChanged = false;
+            return;
+        }
+        final int[] passengers = this.passengers();
+        this.passengersChanged = !Arrays.equals(this.lastPassengers, passengers);
+        this.lastPassengers = passengers;
+
+    }
+
+    @Override
+    protected void moveTo(final @NotNull Player viewer) {
+
+        if (this.passengersChanged && this.spawnedFor.contains(viewer.getUniqueId())) {
+            PacketEvents.getAPI().getPlayerManager().sendPacket(
+                    viewer,
+                    new WrapperPlayServerSetPassengers(this.target.getEntityId(), this.lastPassengers)
+            );
+        }
 
     }
 

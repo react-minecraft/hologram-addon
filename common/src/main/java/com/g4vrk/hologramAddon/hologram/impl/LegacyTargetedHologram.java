@@ -41,6 +41,10 @@ public final class LegacyTargetedHologram extends TargetedHologram {
             new AtomicInteger(1_900_000_000);
 
     private final Map<UUID, List<ArmorStandLine>> spawnedFor = new ConcurrentHashMap<>();
+    private double lastX = Double.NaN;
+    private double lastY = Double.NaN;
+    private double lastZ = Double.NaN;
+    private boolean positionChanged;
 
     private final String teamName = "lh_" + Integer.toUnsignedString(ThreadLocalRandom.current().nextInt(), 36);
 
@@ -304,17 +308,37 @@ public final class LegacyTargetedHologram extends TargetedHologram {
     }
 
     @Override
+    protected void prepareMove() {
+
+        if (this.spawnedFor.isEmpty()) {
+            this.positionChanged = false;
+            return;
+        }
+        final org.bukkit.Location location = this.target.getLocation();
+        final double x = location.getX();
+        final double y = location.getY();
+        final double z = location.getZ();
+        this.positionChanged = this.lastX != x || this.lastY != y || this.lastZ != z;
+        this.lastX = x;
+        this.lastY = y;
+        this.lastZ = z;
+
+    }
+
+    @Override
     protected void moveTo(final @NotNull Player viewer) {
 
+        if (!this.positionChanged) {
+            return;
+        }
         final List<ArmorStandLine> stands = this.spawnedFor.get(viewer.getUniqueId());
         if (stands == null || stands.isEmpty()) {
             return;
         }
-        final org.bukkit.Location targetLocation = this.target.getLocation();
         final PlayerManager playerManager = PacketEvents.getAPI().getPlayerManager();
         for (int index = 0; index < stands.size(); index++) {
-            final double y = targetLocation.getY() + this.config.yOffset() + (stands.size() - 1 - index) * this.config.lineSpacing();
-            final Location location = new Location(targetLocation.getX(), y, targetLocation.getZ(), 0F, 0F);
+            final double y = this.lastY + this.config.yOffset() + (stands.size() - 1 - index) * this.config.lineSpacing();
+            final Location location = new Location(this.lastX, y, this.lastZ, 0F, 0F);
             playerManager.sendPacket(viewer, new WrapperPlayServerEntityTeleport(stands.get(index).entityId, location, false));
         }
 
