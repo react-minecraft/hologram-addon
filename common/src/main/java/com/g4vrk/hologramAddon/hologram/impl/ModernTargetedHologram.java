@@ -19,6 +19,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -116,11 +117,18 @@ public final class ModernTargetedHologram extends TargetedHologram {
             @NotNull Player viewer
     ) {
 
+        final List<Entity> existingPassengers = this.target.getPassengers();
+        final int[] passengers = new int[existingPassengers.size() + 1];
+        for (int index = 0; index < existingPassengers.size(); index++) {
+            passengers[index] = existingPassengers.get(index).getEntityId();
+        }
+        passengers[existingPassengers.size()] = this.entityId;
+
         PacketEvents.getAPI().getPlayerManager().sendPacket(
                 viewer,
                 new WrapperPlayServerSetPassengers(
                         this.target.getEntityId(),
-                        new int[]{entityId}
+                        passengers
                 )
         );
 
