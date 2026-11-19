@@ -64,8 +64,8 @@ public abstract class TargetedHologram implements Hologram {
             this.viewers.add(viewer);
             this.displayed = true;
             this.showTo(viewer, lines);
-        } else {
-            this.removeViewer(viewer);
+        } else if (this.viewers.remove(viewer)) {
+            this.hideFrom(viewer);
         }
 
     }
