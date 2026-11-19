@@ -16,6 +16,7 @@ import com.g4vrk.react.api.addon.JavaAddon;
 import com.g4vrk.react.api.extension.AddonEnvironment;
 import com.g4vrk.react.api.player.TrackedPlayer;
 import com.g4vrk.schedula.task.TickSchedule;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +57,9 @@ public final class ReactHologramAddon extends JavaAddon {
         this.hologramTextGenerator = configuration.textGenerator();
 
         environment.listeners().register(new ConnectionListener(this.viewerManager));
+        for (final Player player : Bukkit.getOnlinePlayers()) {
+            environment.scheduler().scheduleEntity(player, () -> this.registerOnlineViewer(player), TickSchedule.instant());
+        }
         environment.listeners().register(new HistoryEntryAddedListener(
                 this.viewerManager::receivers,
                 this::hologram,
@@ -73,6 +77,14 @@ public final class ReactHologramAddon extends JavaAddon {
                 configuration.main()
         );
         this.command.register(environment.commands());
+
+    }
+
+    private synchronized void registerOnlineViewer(final @NotNull Player player) {
+
+        if (!this.disabled && player.isOnline() && player.hasPermission("react.hologram.view")) {
+            this.viewerManager.add(player.getUniqueId());
+        }
 
     }
 
@@ -132,7 +144,11 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
-    private @NotNull TargetedHologram hologram(final @NotNull Player target) {
+    private synchronized @Nullable TargetedHologram hologram(final @NotNull Player target) {
+
+        if (this.disabled) {
+            return null;
+        }
 
         return this.holograms.computeIfAbsent(target.getUniqueId(), ignored -> this.hologramFactory.create(target));
 

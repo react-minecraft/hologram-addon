@@ -59,6 +59,9 @@ public final class HistoryEntryAddedListener {
         }
 
         final TargetedHologram hologram = this.hologramFactory.apply(target);
+        if (hologram == null) {
+            return;
+        }
         final Set<UUID> viewers = this.viewersSupplier.get();
 
         for (final UUID uuid : viewers) {

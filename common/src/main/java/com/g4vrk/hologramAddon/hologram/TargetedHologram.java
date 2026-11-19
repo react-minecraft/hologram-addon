@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Owns the viewer and packet state of a single target hologram.
+ */
 public abstract class TargetedHologram implements Hologram {
 
     private final Set<Player> viewers = new ObjectOpenHashSet<>();
@@ -15,6 +18,7 @@ public abstract class TargetedHologram implements Hologram {
     protected final Player target;
 
     private boolean displayed;
+    private boolean closed;
 
     protected TargetedHologram(
             @NotNull Player target
@@ -22,20 +26,30 @@ public abstract class TargetedHologram implements Hologram {
         this.target = target;
     }
 
-    public final void addViewer(@NotNull Player viewer) {
-        this.viewers.add(viewer);
+    public final synchronized void addViewer(final @NotNull Player viewer) {
+
+        if (!this.closed) {
+            this.viewers.add(viewer);
+        }
+
     }
 
-    public final void removeViewer(@NotNull Player viewer) {
+    public final synchronized void removeViewer(final @NotNull Player viewer) {
+
         if (!this.viewers.remove(viewer)) {
             return;
         }
 
-        hideFrom(viewer);
+        this.hideFrom(viewer);
+
     }
 
     @Override
-    public final void display(@NotNull List<Component> lines) {
+    public final synchronized void display(final @NotNull List<Component> lines) {
+
+        if (this.closed) {
+            return;
+        }
 
         this.displayed = true;
 
@@ -46,8 +60,11 @@ public abstract class TargetedHologram implements Hologram {
     }
 
     @Override
-    public final void hide() {
+    public final synchronized void hide() {
+
+        this.closed = true;
         if (!this.displayed) {
+            this.viewers.clear();
             return;
         }
 
@@ -56,6 +73,8 @@ public abstract class TargetedHologram implements Hologram {
         for (final Player viewer : this.viewers) {
             this.hideFrom(viewer);
         }
+        this.viewers.clear();
+
     }
 
     protected abstract void showTo(
