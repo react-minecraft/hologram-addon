@@ -40,20 +40,25 @@ public final class HistoryEntryAddedListener {
             final @NotNull Supplier<HologramTextGenerator<TrackedPlayer>> hologramTextGeneratorSupplier,
             final @NotNull Scheduler scheduler
     ) {
+
         this.viewersSupplier = viewersSupplier;
         this.hologramFactory = hologramFactory;
         this.hologramTextGeneratorSupplier = hologramTextGeneratorSupplier;
         this.scheduler = scheduler;
+
     }
 
     @Subscribe(priority = EventPriority.MONITOR)
     public void onInferenceResult(final @NotNull InferenceResultEvent event) {
+
         final TrackedPlayer player = event.check().player();
         final Player target = player.bukkit();
         this.scheduler.scheduleEntity(target, () -> update(player, target), TickSchedule.instant());
+
     }
 
     private void update(final @NotNull TrackedPlayer player, final @NotNull Player target) {
+
         if (!target.isOnline()) {
             return;
         }
@@ -83,6 +88,7 @@ public final class HistoryEntryAddedListener {
                 }, TickSchedule.instant());
             }, TickSchedule.instant());
         }
+
     }
 
     private static boolean legacyTracking() {

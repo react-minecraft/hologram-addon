@@ -17,7 +17,9 @@ public final class HologramFactory {
             @NotNull ModernHologramConfiguration modernHologramConfiguration,
             @NotNull LegacyHologramConfiguration legacyHologramConfiguration
     ) {
+
         this(modernHologramConfiguration, legacyHologramConfiguration, true);
+
     }
 
     public HologramFactory(
@@ -25,15 +27,19 @@ public final class HologramFactory {
             @NotNull LegacyHologramConfiguration legacyHologramConfiguration,
             boolean createTeam
     ) {
+
         this.modernHologramConfiguration = modernHologramConfiguration;
         this.legacyHologramConfiguration = legacyHologramConfiguration;
         this.createTeam = createTeam;
+
     }
 
     public @NotNull TargetedHologram create(
             final @NotNull Player target
     ) {
+
         return new VersionedTargetedHologram(target, modernHologramConfiguration, legacyHologramConfiguration, createTeam);
+
     }
 
 }

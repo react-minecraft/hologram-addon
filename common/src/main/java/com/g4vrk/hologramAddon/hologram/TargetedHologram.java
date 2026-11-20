@@ -28,7 +28,9 @@ public abstract class TargetedHologram implements Hologram {
     protected TargetedHologram(
             @NotNull Player target
     ) {
+
         this.target = target;
+
     }
 
     public final synchronized void addViewer(final @NotNull Player viewer) {

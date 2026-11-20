@@ -18,11 +18,13 @@ public class ConnectionListener implements Listener {
     public ConnectionListener(
             @NotNull HologramViewerManager hologramViewerManager
     ) {
+
         this.hologramViewerManager = hologramViewerManager;
+
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(final PlayerJoinEvent event) {
 
         final Player player = event.getPlayer();
 
@@ -31,7 +33,7 @@ public class ConnectionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onPlayerQuit(final PlayerQuitEvent event) {
 
         final Player player = event.getPlayer();
         final UUID uniqueId = player.getUniqueId();

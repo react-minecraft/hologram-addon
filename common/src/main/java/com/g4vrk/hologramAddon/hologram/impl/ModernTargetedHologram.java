@@ -83,7 +83,7 @@ public final class ModernTargetedHologram extends TargetedHologram {
 
     }
 
-    private void spawn(@NotNull Player viewer) {
+    private void spawn(final @NotNull Player viewer) {
 
         final Location location = new Location(
                 this.target.getLocation().getX(),
@@ -234,7 +234,7 @@ public final class ModernTargetedHologram extends TargetedHologram {
     }
 
     @Override
-    public void hideFrom(@NotNull Player viewer) {
+    public void hideFrom(final @NotNull Player viewer) {
 
         if (!this.spawnedFor.remove(viewer.getUniqueId())) {
             return;
@@ -260,7 +260,7 @@ public final class ModernTargetedHologram extends TargetedHologram {
 
     }
 
-    private void sendNameTagVisibility(@NotNull Player viewer) {
+    private void sendNameTagVisibility(final @NotNull Player viewer) {
 
         final PlayerManager playerManager = PacketEvents.getAPI().getPlayerManager();
 

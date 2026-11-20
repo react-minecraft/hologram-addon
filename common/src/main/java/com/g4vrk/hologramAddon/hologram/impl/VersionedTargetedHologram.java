@@ -21,7 +21,9 @@ public final class VersionedTargetedHologram extends TargetedHologram {
             @NotNull ModernHologramConfiguration modernHologramConfiguration,
             @NotNull LegacyHologramConfiguration legacyHologramConfiguration
     ) {
+
         this(target, modernHologramConfiguration, legacyHologramConfiguration, true);
+
     }
 
     public VersionedTargetedHologram(
@@ -30,10 +32,12 @@ public final class VersionedTargetedHologram extends TargetedHologram {
             @NotNull LegacyHologramConfiguration legacyHologramConfiguration,
             boolean createTeam
     ) {
+
         super(target);
 
         this.modern = new ModernTargetedHologram(target, modernHologramConfiguration, createTeam);
         this.legacy = new LegacyTargetedHologram(target, legacyHologramConfiguration, createTeam);
+
     }
 
     @Override
@@ -41,11 +45,13 @@ public final class VersionedTargetedHologram extends TargetedHologram {
             @NotNull Player viewer,
             @NotNull List<Component> lines
     ) {
+
         if (supportsTextDisplay(viewer)) {
             this.modern.showTo(viewer, lines);
         } else {
             this.legacy.showTo(viewer, lines);
         }
+
     }
 
     @Override
@@ -68,12 +74,14 @@ public final class VersionedTargetedHologram extends TargetedHologram {
     }
 
     @Override
-    public void hideFrom(@NotNull Player viewer) {
+    public void hideFrom(final @NotNull Player viewer) {
+
         if (supportsTextDisplay(viewer)) {
             this.modern.hideFrom(viewer);
         } else {
             this.legacy.hideFrom(viewer);
         }
+
     }
 
     private boolean supportsTextDisplay(

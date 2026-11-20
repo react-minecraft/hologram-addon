@@ -13,6 +13,7 @@ public final class LegacyHologramConfiguration implements TargetedHologramConfig
     public LegacyHologramConfiguration(
             @NotNull ConfigurationNode node
     ) {
+
         this.yOffset = node
                 .node("y-offset")
                 .getDouble(0.38D);
@@ -21,14 +22,19 @@ public final class LegacyHologramConfiguration implements TargetedHologramConfig
                 0.0D,
                 node.node("line-spacing").getDouble(0.26D)
         );
+
     }
 
     @Override
     public double yOffset() {
+
         return this.yOffset;
+
     }
 
     public double lineSpacing() {
+
         return this.lineSpacing;
+
     }
 }

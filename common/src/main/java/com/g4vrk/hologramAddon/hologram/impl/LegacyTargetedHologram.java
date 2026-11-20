@@ -52,7 +52,9 @@ public final class LegacyTargetedHologram extends TargetedHologram {
             @NotNull Player target,
             @NotNull LegacyHologramConfiguration config
     ) {
+
         this(target, config, true);
+
     }
 
     public LegacyTargetedHologram(
@@ -60,10 +62,12 @@ public final class LegacyTargetedHologram extends TargetedHologram {
             @NotNull LegacyHologramConfiguration config,
             boolean createTeam
     ) {
+
         super(target);
 
         this.config = config;
         this.createTeam = createTeam;
+
     }
 
     @Override
@@ -102,6 +106,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
                 armorStands,
                 lines
         );
+
     }
 
     private void resize(
@@ -142,6 +147,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
                             )
                     );
         }
+
     }
 
     private void spawn(
@@ -180,6 +186,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
                         List.of()
                 )
         );
+
     }
 
     private void update(
@@ -240,6 +247,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
                     )
             );
         }
+
     }
 
     private @NotNull List<EntityData<?>> createMetadata(
@@ -305,6 +313,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
         }
 
         return metadata;
+
     }
 
     @Override
@@ -345,7 +354,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
     }
 
     @Override
-    public void hideFrom(@NotNull Player viewer) {
+    public void hideFrom(final @NotNull Player viewer) {
 
         final List<ArmorStandLine> armorStands =
                 this.spawnedFor.remove(
@@ -384,6 +393,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
                     )
             );
         }
+
     }
 
     private void sendNameTagVisibility(
@@ -412,6 +422,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
                                 this.target.getName()
                         )
                 );
+
     }
 
     private static final class ArmorStandLine {
@@ -423,8 +434,10 @@ public final class LegacyTargetedHologram extends TargetedHologram {
                 int entityId,
                 UUID uuid
         ) {
+
             this.entityId = entityId;
             this.uuid = uuid;
+
         }
     }
 }

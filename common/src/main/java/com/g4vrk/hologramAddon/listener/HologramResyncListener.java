@@ -26,35 +26,35 @@ public final class HologramResyncListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onPlayerQuit(final PlayerQuitEvent event) {
 
         this.resync.accept(event.getPlayer());
 
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerJoin(@NotNull PlayerJoinEvent event) {
+    public void onPlayerJoin(final @NotNull PlayerJoinEvent event) {
 
         this.resync.accept(event.getPlayer());
 
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerRespawn(@NotNull PlayerRespawnEvent event) {
+    public void onPlayerRespawn(final @NotNull PlayerRespawnEvent event) {
 
         this.resync.accept(event.getPlayer());
 
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerChangedWorld(@NotNull PlayerChangedWorldEvent event) {
+    public void onPlayerChangedWorld(final @NotNull PlayerChangedWorldEvent event) {
 
         this.resync.accept(event.getPlayer());
 
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
+    public void onPlayerTeleport(final PlayerTeleportEvent event) {
 
         this.resync.accept(event.getPlayer());
 

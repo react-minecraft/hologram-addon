@@ -25,6 +25,7 @@ public final class ReactHologramTextConfiguration {
     public ReactHologramTextConfiguration(
             @NotNull ConfigurationNode node
     ) {
+
         this.lines = readLines(
                 node.node("lines")
         );
@@ -37,23 +38,31 @@ public final class ReactHologramTextConfiguration {
         this.historySeparator = node
                 .node("history", "separator")
                 .getString(" ");
+
     }
 
     public @NotNull List<String> lines() {
+
         return this.lines;
+
     }
 
     public @NotNull String probabilityFormat() {
+
         return this.probabilityFormat;
+
     }
 
     public @NotNull String historySeparator() {
+
         return this.historySeparator;
+
     }
 
     private @NotNull List<String> readLines(
             final @NotNull ConfigurationNode node
     ) {
+
         final List<String> result = new ObjectArrayList<>();
 
         for (ConfigurationNode child : node.childrenList()) {
@@ -69,11 +78,13 @@ public final class ReactHologramTextConfiguration {
         }
 
         return List.copyOf(result);
+
     }
 
     private @NotNull String validateFormat(
             final @NotNull String format
     ) {
+
         try {
             new DecimalFormat(
                     format,
@@ -88,5 +99,6 @@ public final class ReactHologramTextConfiguration {
                     ex
             );
         }
+
     }
 }

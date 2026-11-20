@@ -19,6 +19,7 @@ public final class ModernHologramConfiguration implements TargetedHologramConfig
     public ModernHologramConfiguration(
             @NotNull ConfigurationNode node
     ) {
+
         this.yOffset = node
                 .node("y-offset")
                 .getDouble(1.5D);
@@ -38,30 +39,42 @@ public final class ModernHologramConfiguration implements TargetedHologramConfig
         this.shadow = node
                 .node("shadow")
                 .getBoolean(true);
+
     }
 
     @Override
     public double yOffset() {
+
         return this.yOffset;
+
     }
 
     public float textScale() {
+
         return this.textScale;
+
     }
 
     public float translationY() {
+
         return this.translationY;
+
     }
 
     public int backgroundColor() {
+
         return this.backgroundColor;
+
     }
 
     public boolean shadow() {
+
         return this.shadow;
+
     }
 
     public byte textFlags() {
+
         byte flags = 0;
 
         if (this.shadow) {
@@ -69,14 +82,17 @@ public final class ModernHologramConfiguration implements TargetedHologramConfig
         }
 
         return flags;
+
     }
 
     private float clampScale(
             float value
     ) {
+
         return Math.max(
                 (float) 0.01,
                 Math.min((float) 4.0, value)
         );
+
     }
 }

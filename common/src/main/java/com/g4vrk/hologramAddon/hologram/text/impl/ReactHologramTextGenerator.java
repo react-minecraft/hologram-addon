@@ -38,13 +38,16 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
             final @NotNull ReactHologramTextConfiguration config,
             final @NotNull TextFormatter text
     ) {
+
         this.config = config;
         this.text = text;
         this.probabilityFormatter = ThreadLocal.withInitial(() -> createFormatter(config.probabilityFormat()));
+
     }
 
     @Override
     public @NotNull List<Component> generate(final @NotNull TrackedPlayer player) {
+
         final List<HistoryEntry> history = player.history();
         final Statistic statistic = Statistic.of(history);
         final List<Component> result = new ObjectArrayList<>(this.config.lines().size());
@@ -54,6 +57,7 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
         }
 
         return result;
+
     }
 
     private @NotNull Component render(
@@ -61,6 +65,7 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
             final @NotNull Statistic statistic,
             final @NotNull List<HistoryEntry> history
     ) {
+
         final Matcher matcher = PLACEHOLDER_PATTERN.matcher(template);
         final ComponentBuilder<?, ?> result = Component.text();
         int position = 0;
@@ -81,6 +86,7 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
         }
 
         return result.build();
+
     }
 
     private @Nullable Component resolvePlaceholder(
@@ -88,6 +94,7 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
             final @NotNull Statistic statistic,
             final @NotNull List<HistoryEntry> history
     ) {
+
         final String[] parts = placeholder.split(":");
 
         if (parts.length < 2) {
@@ -99,9 +106,11 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
             case "history" -> this.resolveHistory(parts, history);
             default -> null;
         };
+
     }
 
     private @Nullable Component resolveStatistic(final @NotNull String[] parts, final @NotNull Statistic statistic) {
+
         final boolean colored = parts.length >= 3 && parts[2].equalsIgnoreCase("colored");
 
         return switch (parts[1]) {
@@ -110,9 +119,11 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
             case "min-probability" -> this.probability(statistic.minProbability(), colored);
             default -> null;
         };
+
     }
 
     private @Nullable Component resolveHistory(final @NotNull String[] parts, final @NotNull List<HistoryEntry> history) {
+
         if (!parts[1].startsWith("last-")) {
             return null;
         }
@@ -142,19 +153,25 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
         }
 
         return result.build();
+
     }
 
     private @NotNull Component renderStatic(final @NotNull String value) {
+
         return value.isEmpty() ? Component.empty() : this.text.format(value);
+
     }
 
     private @NotNull Component probability(final double value, final boolean colored) {
+
         final Component component = Component.text(this.probabilityFormatter.get().format(value));
         return colored ? component.color(probabilityColor(value)) : component;
+
     }
 
     /** Green at 0, yellow at 0.5, red at 1: the scale the plugin uses for its own messages. */
     private static @NotNull TextColor probabilityColor(final double probability) {
+
         final double normalized = Math.min(1.0D, Math.max(probability, 0.0D));
 
         if (normalized < 0.5D) {
@@ -162,17 +179,21 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
         }
 
         return TextColor.color(255, (int) ((1.0D - (normalized - 0.5D) * 2.0D) * 255), 0);
+
     }
 
     private static @NotNull DecimalFormat createFormatter(final @NotNull String format) {
+
         final DecimalFormat decimalFormat = new DecimalFormat(format, DecimalFormatSymbols.getInstance(Locale.US));
         decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
         return decimalFormat;
+
     }
 
     private record Statistic(double averageProbability, double maxProbability, double minProbability) {
 
         private static @NotNull Statistic of(final @NotNull List<HistoryEntry> history) {
+
             if (history.isEmpty()) {
                 return new Statistic(0.0D, 0.0D, 0.0D);
             }
@@ -189,6 +210,8 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
             }
 
             return new Statistic(sum / history.size(), max, min);
+
         }
+
     }
 }

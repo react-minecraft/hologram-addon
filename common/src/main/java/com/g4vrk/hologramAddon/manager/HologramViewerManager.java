@@ -16,22 +16,30 @@ public class HologramViewerManager {
     public boolean add(
             final @NotNull UUID uuid
     ) {
+
         return this.receivers.add(uuid);
+
     }
 
     public boolean remove(
             final @NotNull UUID uuid
     ) {
+
         return this.receivers.remove(uuid);
+
     }
 
     public boolean receives(
             final @NotNull UUID uuid
     ) {
+
         return this.receivers.contains(uuid);
+
     }
 
     public @NotNull Set<UUID> receivers() {
+
         return receivers;
+
     }
 }
