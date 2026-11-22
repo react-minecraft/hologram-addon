@@ -53,7 +53,7 @@ public final class HologramResyncListener implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerTeleport(final PlayerTeleportEvent event) {
 
         this.resync.accept(event.getPlayer());

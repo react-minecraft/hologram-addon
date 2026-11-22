@@ -74,7 +74,11 @@ public abstract class TargetedHologram implements Hologram {
 
     public final synchronized void removeViewer(final @NotNull Player viewer) {
 
-        this.revisions.put(viewer.getUniqueId(), ++this.revision);
+        if (viewer.isOnline()) {
+            this.revisions.put(viewer.getUniqueId(), ++this.revision);
+        } else {
+            this.revisions.remove(viewer.getUniqueId());
+        }
         if (!this.viewers.remove(viewer)) {
             return;
         }

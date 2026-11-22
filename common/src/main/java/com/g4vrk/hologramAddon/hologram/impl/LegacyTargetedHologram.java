@@ -178,11 +178,7 @@ public final class LegacyTargetedHologram extends TargetedHologram {
                         EntityTypes.ARMOR_STAND,
                         location,
                         0F,
-                        new Vector3d(
-                                0.0D,
-                                0.0D,
-                                0.0D
-                        ),
+                        Vector3d.zero(),
                         List.of()
                 )
         );

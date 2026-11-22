@@ -26,14 +26,16 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ModernTargetedHologram extends TargetedHologram {
+
+    private static final AtomicInteger ENTITY_ID_COUNTER = new AtomicInteger(1_950_000_000);
 
     private final ModernHologramConfiguration config;
     private final boolean createTeam;
 
-    private final int entityId = ThreadLocalRandom.current().nextInt(1, Integer.MAX_VALUE);
+    private final int entityId = ENTITY_ID_COUNTER.getAndDecrement();
 
     private final UUID entityUniqueId = UUID.randomUUID();
 
