@@ -3,7 +3,7 @@ package com.g4vrk.hologramAddon.listener;
 import com.g4vrk.hologramAddon.hologram.TargetedHologram;
 import com.g4vrk.hologramAddon.hologram.text.HologramTextGenerator;
 import com.g4vrk.react.api.event.EventPriority;
-import com.g4vrk.react.api.event.Subscribe;
+import com.g4vrk.react.api.event.bus.Subscribe;
 import com.g4vrk.react.api.event.check.InferenceResultEvent;
 import com.g4vrk.react.api.player.TrackedPlayer;
 import com.g4vrk.schedula.task.TickSchedule;

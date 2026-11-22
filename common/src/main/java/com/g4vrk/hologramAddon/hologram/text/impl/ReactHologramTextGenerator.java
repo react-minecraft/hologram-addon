@@ -169,7 +169,9 @@ public final class ReactHologramTextGenerator implements HologramTextGenerator<T
 
     }
 
-    /** Green at 0, yellow at 0.5, red at 1: the scale the plugin uses for its own messages. */
+    /**
+     * Green at 0, yellow at 0.5, red at 1: the scale the plugin uses for its own messages.
+     */
     private static @NotNull TextColor probabilityColor(final double probability) {
 
         final double normalized = Math.min(1.0D, Math.max(probability, 0.0D));

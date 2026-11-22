@@ -13,7 +13,7 @@ import com.g4vrk.hologramAddon.listener.HistoryEntryAddedListener;
 import com.g4vrk.hologramAddon.listener.HologramResyncListener;
 import com.g4vrk.hologramAddon.manager.HologramViewerManager;
 import com.g4vrk.react.api.addon.JavaAddon;
-import com.g4vrk.react.api.extension.AddonEnvironment;
+import com.g4vrk.react.api.extension.environment.AddonEnvironment;
 import com.g4vrk.react.api.player.TrackedPlayer;
 import com.g4vrk.schedula.task.TickSchedule;
 import org.bukkit.Bukkit;
