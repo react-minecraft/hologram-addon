@@ -52,25 +52,25 @@ public final class ReactHologramAddon extends JavaAddon {
     public void onEnable() {
 
         final AddonEnvironment environment = environment();
-        final LoadedModules configuration = load();
+        final LoadedModuleSet configuration = load();
         this.hologramFactory = configuration.hologramFactory();
         this.hologramTextGenerator = configuration.textGenerator();
 
         environment.listeners().register(new ConnectionListener(this.viewerManager));
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            environment.scheduler().scheduleEntity(player, () -> this.registerOnlineViewer(player), TickSchedule.instant());
+            environment.scheduler().<Player>mapEntity(environment.platform()::adaptPlayer).scheduleEntity(player, () -> this.registerOnlineViewer(player), TickSchedule.instant());
         }
         environment.listeners().register(new HistoryEntryAddedListener(
                 this.viewerManager::receivers,
                 this::hologram,
                 () -> this.hologramTextGenerator,
-                environment.scheduler()
+                environment.scheduler().<Player>mapEntity(environment.platform()::adaptPlayer)
         ));
         environment.listeners().register(new HologramResyncListener(this::resync));
 
         this.command = new HologramCommand(
                 environment.actions(),
-                environment.scheduler(),
+                environment.scheduler().<Player>mapEntity(environment.platform()::adaptPlayer),
                 this::reloadAsync,
                 this::resync,
                 configuration.main()
@@ -144,7 +144,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
         return this.holograms.computeIfAbsent(target.getUniqueId(), ignored -> {
             final TargetedHologram hologram = this.hologramFactory.create(target);
-            environment().scheduler().scheduleEntity(target, task -> {
+            environment().scheduler().<Player>mapEntity(environment().platform()::adaptPlayer).scheduleEntity(target, task -> {
                 if (!hologram.move()) {
                     task.cancel();
                 }
@@ -168,7 +168,7 @@ public final class ReactHologramAddon extends JavaAddon {
             return CompletableFuture.failedFuture(new IllegalStateException("Hologram addon is already reloading"));
         }
 
-        final CompletableFuture<Void> result = CompletableFuture.supplyAsync(this::load).thenAcceptAsync(this::applyReload, task -> environment().scheduler().schedule(task, TickSchedule.instant()));
+        final CompletableFuture<Void> result = CompletableFuture.supplyAsync(this::load).thenAcceptAsync(this::applyReload, task -> environment().scheduler().<Player>mapEntity(environment().platform()::adaptPlayer).schedule(task, TickSchedule.instant()));
         this.pendingReload = result;
         result.whenComplete((ignored, failure) -> {
             if (failure != null && !result.isCancelled()) {
@@ -179,7 +179,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
-    private synchronized void applyReload(final @NotNull LoadedModules configuration) {
+    private synchronized void applyReload(final @NotNull LoadedModuleSet configuration) {
 
         if (this.disabled) {
             return;
@@ -192,7 +192,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
-    private @NotNull LoadedModules load() {
+    private @NotNull LoadedModuleSet load() {
 
         final CommentedConfigurationNode main;
         final String language = "en".equalsIgnoreCase(System.getProperty("user.language")) ? "en" : "ru";
@@ -208,7 +208,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
         final ConfigurationNode settings = main.node("settings");
 
-        return new LoadedModules(
+        return new LoadedModuleSet(
                 main,
                 new HologramFactory(
                         new ModernHologramConfiguration(settings.node("text-display")),
@@ -223,7 +223,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
-    private record LoadedModules(
+    private record LoadedModuleSet(
             @NotNull CommentedConfigurationNode main,
             @NotNull HologramFactory hologramFactory,
             @NotNull HologramTextGenerator<TrackedPlayer> textGenerator

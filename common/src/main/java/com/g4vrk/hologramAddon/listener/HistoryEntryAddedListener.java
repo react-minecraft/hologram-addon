@@ -7,7 +7,7 @@ import com.g4vrk.react.api.event.Subscribe;
 import com.g4vrk.react.api.event.check.InferenceResultEvent;
 import com.g4vrk.react.api.player.TrackedPlayer;
 import com.g4vrk.schedula.task.TickSchedule;
-import com.g4vrk.schedula.task.scheduler.Scheduler;
+import com.g4vrk.schedula.task.scheduler.TaskScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -32,13 +32,13 @@ public final class HistoryEntryAddedListener {
     private final Supplier<Set<UUID>> viewersSupplier;
     private final Function<Player, TargetedHologram> hologramFactory;
     private final Supplier<HologramTextGenerator<TrackedPlayer>> hologramTextGeneratorSupplier;
-    private final Scheduler scheduler;
+    private final TaskScheduler<Player> scheduler;
 
     public HistoryEntryAddedListener(
             final @NotNull Supplier<Set<UUID>> viewersSupplier,
             final @NotNull Function<Player, TargetedHologram> hologramFactory,
             final @NotNull Supplier<HologramTextGenerator<TrackedPlayer>> hologramTextGeneratorSupplier,
-            final @NotNull Scheduler scheduler
+            final @NotNull TaskScheduler<Player> scheduler
     ) {
 
         this.viewersSupplier = viewersSupplier;
@@ -52,7 +52,7 @@ public final class HistoryEntryAddedListener {
     public void onInferenceResult(final @NotNull InferenceResultEvent event) {
 
         final TrackedPlayer player = event.check().player();
-        final Player target = player.bukkit();
+        final Player target = ((Player) player.platform().handle());
         this.scheduler.scheduleEntity(target, () -> update(player, target), TickSchedule.instant());
 
     }
