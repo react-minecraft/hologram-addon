@@ -6,13 +6,21 @@ minecraft = "1.19.4"
 # React commit on react-minecraft/plugin, built by JitPack.
 react = "df00c45"
 actions = "a0508d1"
-schedula = "b902674126"
+schedula = "f7fcce3"
 
 packetevents = "2.13.0"
 configurate = "4.2.0"
 cloud-paper = "2.0.0"
 cloud-core = "2.0.0"
 minestom = "2026.10.07-26.2"
+sponge-api = "17.0.0"
+fabric-loom = "1.16.2"
+fabric-loader = "0.19.3"
+fabric-api = "0.161.0+26.2"
+fabric-minecraft = "26.2"
+fabric-adventure-platform = "7.1.1"
+packetevents-fabric = "2.14.0"
+jetbrains-annotations = "24.1.0"
 
 junit = "6.1.3"
 junit-platform = "6.1.3"
@@ -36,6 +44,15 @@ configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref 
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-paper" }
 cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud-core" }
 minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
+sponge-api = { module = "org.spongepowered:spongeapi", version.ref = "sponge-api" }
+packetevents-sponge = { module = "com.github.retrooper:packetevents-sponge", version.ref = "packetevents" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-adventure-platform = { module = "net.kyori:adventure-platform-fabric", version.ref = "fabric-adventure-platform" }
+packetevents-api-fabric = { module = "com.github.retrooper:packetevents-api", version.ref = "packetevents-fabric" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+schedula-sponge = { module = "com.github.g4vrk.Schedula:sponge", version.ref = "schedula" }
+schedula-fabric = { module = "com.github.g4vrk.Schedula:fabric", version.ref = "schedula" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
@@ -47,3 +64,4 @@ lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run-task" }
+fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }

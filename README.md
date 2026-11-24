@@ -52,19 +52,20 @@ settings:
 
 ## Установка
 
-1. Соберите аддон или скачайте jar из [GitHub Releases](https://github.com/react-minecraft/hologram-addon/releases/latest). Нужен React с API 2.
-2. Положите `hologram-addon-<версия>.jar` в `plugins/React/addons/`.
-3. Перезапустите сервер или выполните `/react reboot addons`. Конфиг появится в `plugins/React/addons/hologram-addon/`.
+1. Соберите аддон или скачайте подходящий jar из [GitHub Releases](https://github.com/react-minecraft/hologram-addon/releases/latest). Нужен React с API 2.
+2. Выберите JAR под свою платформу: `hologram-addon-<версия>.jar` для Bukkit/Paper, `hologram-addon-fabric-<версия>.jar` для Fabric, `hologram-addon-sponge-<версия>.jar` для Sponge или `hologram-addon-minestom-<версия>.jar` для Minestom.
+3. Положите JAR в папку `addons/` внутри каталога данных React. Для Bukkit/Paper это `plugins/React/addons/`, для Fabric — `config/react/addons/`; Sponge использует каталог данных плагина React, а Minestom — путь, переданный хостом в `MinestomRuntime.start`.
+4. Перезапустите сервер или выполните `/react reboot addons`. Конфиг появится в каталоге данных аддона.
 
 ## Сборка
 
-Для сборки нужен JDK 21.
+Для сборки нужен JDK 25.
 
 ```bash
 ./gradlew build
 ```
 
-Готовый jar лежит в `common/build/libs/`.
+JAR для каждой платформы лежит в `build/libs/` её модуля.
 
 ## Лицензия
 

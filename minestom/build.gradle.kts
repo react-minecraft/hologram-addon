@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.tasks.SourceSetContainer
 
@@ -42,6 +43,9 @@ tasks.processResources {
 
 tasks.named<ShadowJar>("shadowJar") {
     archiveFileName.set("hologram-addon-minestom-${project.version}.jar")
-    val commonOutput = project(":common").extensions.getByType<SourceSetContainer>().named("main").map { it.output }
-    from(commonOutput)
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    val commonClasses = project(":common").extensions.getByType<SourceSetContainer>()
+        .named("main")
+        .map { it.output.classesDirs }
+    from(commonClasses)
 }

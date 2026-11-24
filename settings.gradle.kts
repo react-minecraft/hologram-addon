@@ -1,8 +1,22 @@
+pluginManagement {
+
+    repositories {
+
+        maven("https://maven.fabricmc.net/")
+        gradlePluginPortal()
+        mavenCentral()
+
+    }
+
+}
+
 rootProject.name = "ReactHologramAddon"
 
 include(
     "common",
-    "minestom"
+    "minestom",
+    "sponge",
+    "fabric"
 )
 
 dependencyResolutionManagement {
