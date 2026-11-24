@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * Loads the shared text and display settings used by platform renderers.
  */
-public record HologramSettings(
+public record HologramConfiguration(
         @NotNull CommentedConfigurationNode main,
         @NotNull ModernHologramConfiguration modern,
         @NotNull LegacyHologramConfiguration legacy,
@@ -26,7 +26,7 @@ public record HologramSettings(
 
     private static final String MAIN_CONFIG = "main-config.yml";
 
-    public static @NotNull HologramSettings load(
+    public static @NotNull HologramConfiguration load(
             final @NotNull ExtensionEnvironment environment,
             final @NotNull ClassLoader classLoader
     ) {
@@ -43,7 +43,7 @@ public record HologramSettings(
         }
 
         final ConfigurationNode settings = main.node("settings");
-        return new HologramSettings(
+        return new HologramConfiguration(
                 main,
                 new ModernHologramConfiguration(settings.node("text-display")),
                 new LegacyHologramConfiguration(settings.node("armor-stand")),

@@ -42,7 +42,7 @@ public final class ReactHologramAddon extends JavaAddon {
     public void onEnable() {
 
         final AddonEnvironment environment = environment();
-        final HologramSettings configuration = load();
+        final HologramConfiguration configuration = load();
         this.hologramFactory = new HologramFactory(
                 configuration.modern(),
                 configuration.legacy(),
@@ -173,7 +173,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
-    private synchronized void applyReload(final @NotNull HologramSettings configuration) {
+    private synchronized void applyReload(final @NotNull HologramConfiguration configuration) {
 
         if (this.disabled) {
             return;
@@ -190,9 +190,9 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
-    private @NotNull HologramSettings load() {
+    private @NotNull HologramConfiguration load() {
 
-        return HologramSettings.load(environment(), getClass().getClassLoader());
+        return HologramConfiguration.load(environment(), getClass().getClassLoader());
 
     }
 
