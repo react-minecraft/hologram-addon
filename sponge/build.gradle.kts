@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.g4vrk.hologram.gradle.ExpandAddonDescriptor
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.tasks.SourceSetContainer
@@ -7,6 +8,15 @@ repositories {
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.codemc.io/repository/maven-releases/")
 }
+
+val commonResourceFiles = rootProject.fileTree("common/src/main/resources").matching {
+    exclude("react-addon.yml")
+}
+val addonDescriptorProperties = mapOf(
+    "version" to project.version.toString(),
+    "description" to project.description.orEmpty(),
+    "name" to rootProject.name
+)
 
 dependencies {
     compileOnly(project(":common"))
@@ -38,16 +48,8 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.processResources {
-    from(project(":common").file("src/main/resources")) {
-        exclude("react-addon.yml")
-    }
-    filesMatching("react-addon.yml") {
-        expand(
-            "version" to project.version,
-            "description" to (project.description ?: ""),
-            "name" to rootProject.name
-        )
-    }
+    from(commonResourceFiles)
+    filesMatching("react-addon.yml", ExpandAddonDescriptor(addonDescriptorProperties))
 }
 
 tasks.named<ShadowJar>("shadowJar") {
