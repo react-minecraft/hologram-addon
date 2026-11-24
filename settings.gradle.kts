@@ -1,7 +1,8 @@
 rootProject.name = "ReactHologramAddon"
 
 include(
-    "common"
+    "common",
+    "minestom"
 )
 
 dependencyResolutionManagement {

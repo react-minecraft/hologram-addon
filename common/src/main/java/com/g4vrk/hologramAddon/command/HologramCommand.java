@@ -4,19 +4,17 @@ import com.g4vrk.functionalActions.list.ExecutableActionList;
 import com.g4vrk.functionalActions.parser.ActionParser;
 import com.g4vrk.react.api.extension.command.CommandRegistrar;
 import com.g4vrk.react.api.platform.player.PlatformPlayer;
-import io.leangen.geantyref.TypeToken;
+import com.g4vrk.react.api.platform.sender.PlatformSender;
 import com.g4vrk.schedula.task.TickSchedule;
 import com.g4vrk.schedula.task.scheduler.TaskScheduler;
+import io.leangen.geantyref.TypeToken;
 import net.kyori.adventure.audience.Audience;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.incendo.cloud.key.CloudKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-import java.util.Objects;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,17 +35,17 @@ public final class HologramCommand {
     private static final CloudKey<Collection<PlatformPlayer>> TARGETS = CloudKey.of("targets", new TypeToken<Collection<PlatformPlayer>>() {});
 
     private final ActionParser<Audience> parser;
-    private final TaskScheduler<Player> scheduler;
+    private final TaskScheduler<PlatformPlayer> scheduler;
     private final Supplier<CompletableFuture<Void>> reload;
-    private final Consumer<Player> resync;
+    private final Consumer<PlatformPlayer> resync;
 
     private volatile MessageSet messages;
 
     public HologramCommand(
             final @NotNull ActionParser<Audience> parser,
-            final @NotNull TaskScheduler<Player> scheduler,
+            final @NotNull TaskScheduler<PlatformPlayer> scheduler,
             final @NotNull Supplier<CompletableFuture<Void>> reload,
-            final @NotNull Consumer<Player> resync,
+            final @NotNull Consumer<PlatformPlayer> resync,
             final @NotNull ConfigurationNode config
     ) {
 
@@ -78,7 +76,7 @@ public final class HologramCommand {
                         .literal(LITERAL)
                         .literal("reload")
                         .permission("react.hologram.reload")
-                        .handler(context -> reload(Objects.requireNonNull(context.sender().unwrap(CommandSender.class))))
+                        .handler(context -> reload(context.sender()))
         );
 
         commands.register(
@@ -88,21 +86,21 @@ public final class HologramCommand {
                         .literal("resync")
                         .permission("react.hologram.resync")
                         .argument(commands.multiplePlayersArgument(TARGETS, false))
-                        .handler(context -> resync(
-                                Objects.requireNonNull(context.sender().unwrap(CommandSender.class)),
-                                context.optional(TARGETS).orElse(null)
-                        ))
+                        .handler(context -> resync(context.sender(), context.optional(TARGETS).orElse(null)))
         );
 
     }
 
-    private void reload(final @NotNull CommandSender sender) {
+    private void reload(final @NotNull PlatformSender sender) {
 
         this.messages.reloadStart().run(sender);
         this.reload.get().whenComplete((ignored, failure) -> {
-            final ExecutableActionList<? super Audience> response = failure == null ? this.messages.reloadFinish() : this.messages.reloadFailure();
+            final ExecutableActionList<? super Audience> response = failure == null
+                    ? this.messages.reloadFinish()
+                    : this.messages.reloadFailure();
             final Runnable notify = () -> response.run(sender);
-            if (sender instanceof Player player) {
+            final PlatformPlayer player = sender.asPlayer();
+            if (player != null) {
                 this.scheduler.scheduleEntity(player, notify, TickSchedule.instant());
             } else {
                 this.scheduler.schedule(notify, TickSchedule.instant());
@@ -112,16 +110,17 @@ public final class HologramCommand {
     }
 
     private void resync(
-            final @NotNull CommandSender sender,
+            final @NotNull PlatformSender sender,
             final @Nullable Collection<PlatformPlayer> selector
     ) {
 
-        final Collection<Player> targets;
+        final Collection<PlatformPlayer> targets;
+        final PlatformPlayer senderPlayer = sender.asPlayer();
 
         if (selector != null) {
-            targets = selector.stream().map(player -> (Player) player.handle()).toList();
-        } else if (sender instanceof Player player) {
-            targets = List.of(player);
+            targets = selector;
+        } else if (senderPlayer != null) {
+            targets = List.of(senderPlayer);
         } else {
             return;
         }
@@ -132,9 +131,9 @@ public final class HologramCommand {
 
         final List<String> names = new ArrayList<>(targets.size());
 
-        for (final Player target : targets) {
+        for (final PlatformPlayer target : targets) {
             this.resync.accept(target);
-            names.add(target.getName());
+            names.add(target.name());
         }
 
         final String joined = String.join(", ", names);

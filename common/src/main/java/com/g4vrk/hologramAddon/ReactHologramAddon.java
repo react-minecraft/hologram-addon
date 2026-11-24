@@ -2,12 +2,8 @@ package com.g4vrk.hologramAddon;
 
 import com.g4vrk.hologramAddon.command.HologramCommand;
 import com.g4vrk.hologramAddon.hologram.TargetedHologram;
-import com.g4vrk.hologramAddon.hologram.config.impl.LegacyHologramConfiguration;
-import com.g4vrk.hologramAddon.hologram.config.impl.ModernHologramConfiguration;
 import com.g4vrk.hologramAddon.hologram.factory.HologramFactory;
 import com.g4vrk.hologramAddon.hologram.text.HologramTextGenerator;
-import com.g4vrk.hologramAddon.hologram.text.impl.ReactHologramTextConfiguration;
-import com.g4vrk.hologramAddon.hologram.text.impl.ReactHologramTextGenerator;
 import com.g4vrk.hologramAddon.listener.ConnectionListener;
 import com.g4vrk.hologramAddon.listener.HistoryEntryAddedListener;
 import com.g4vrk.hologramAddon.listener.HologramResyncListener;
@@ -20,10 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.ConfigurationNode;
-
-import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -36,8 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * when the addon is disabled.</p>
  */
 public final class ReactHologramAddon extends JavaAddon {
-
-    private static final String MAIN_CONFIG = "main-config.yml";
 
     private final HologramViewerManager viewerManager = new HologramViewerManager();
     private final Map<UUID, TargetedHologram> holograms = new ConcurrentHashMap<>();
@@ -52,8 +42,12 @@ public final class ReactHologramAddon extends JavaAddon {
     public void onEnable() {
 
         final AddonEnvironment environment = environment();
-        final LoadedModuleSet configuration = load();
-        this.hologramFactory = configuration.hologramFactory();
+        final HologramSettings configuration = load();
+        this.hologramFactory = new HologramFactory(
+                configuration.modern(),
+                configuration.legacy(),
+                configuration.createTeam()
+        );
         this.hologramTextGenerator = configuration.textGenerator();
 
         environment.listeners().register(new ConnectionListener(this.viewerManager));
@@ -70,9 +64,9 @@ public final class ReactHologramAddon extends JavaAddon {
 
         this.command = new HologramCommand(
                 environment.actions(),
-                environment.scheduler().<Player>mapEntity(environment.platform()::adaptPlayer),
+                environment.scheduler(),
                 this::reloadAsync,
-                this::resync,
+                player -> this.resync(player.unwrap(Player.class)),
                 configuration.main()
         );
         this.command.register(environment.commands());
@@ -179,7 +173,7 @@ public final class ReactHologramAddon extends JavaAddon {
 
     }
 
-    private synchronized void applyReload(final @NotNull LoadedModuleSet configuration) {
+    private synchronized void applyReload(final @NotNull HologramSettings configuration) {
 
         if (this.disabled) {
             return;
@@ -187,47 +181,19 @@ public final class ReactHologramAddon extends JavaAddon {
         this.command.reload(configuration.main());
         this.holograms.values().forEach(TargetedHologram::hide);
         this.holograms.clear();
-        this.hologramFactory = configuration.hologramFactory();
+        this.hologramFactory = new HologramFactory(
+                configuration.modern(),
+                configuration.legacy(),
+                configuration.createTeam()
+        );
         this.hologramTextGenerator = configuration.textGenerator();
 
     }
 
-    private @NotNull LoadedModuleSet load() {
+    private @NotNull HologramSettings load() {
 
-        final CommentedConfigurationNode main;
-        final String language = "en".equalsIgnoreCase(System.getProperty("user.language")) ? "en" : "ru";
+        return HologramSettings.load(environment(), getClass().getClassLoader());
 
-        try {
-            main = environment().configs().file(MAIN_CONFIG, ConfigurationNode.class)
-                    .defaults(getClass().getClassLoader(), language + "/" + MAIN_CONFIG)
-                    .build()
-                    .loadNode();
-        } catch (final IOException exception) {
-            throw new IllegalStateException("Could not load " + MAIN_CONFIG, exception);
-        }
-
-        final ConfigurationNode settings = main.node("settings");
-
-        return new LoadedModuleSet(
-                main,
-                new HologramFactory(
-                        new ModernHologramConfiguration(settings.node("text-display")),
-                        new LegacyHologramConfiguration(settings.node("armor-stand")),
-                        settings.node("create-team").getBoolean(false)
-                ),
-                new ReactHologramTextGenerator(
-                        new ReactHologramTextConfiguration(settings.node("text")),
-                        environment().text()
-                )
-        );
-
-    }
-
-    private record LoadedModuleSet(
-            @NotNull CommentedConfigurationNode main,
-            @NotNull HologramFactory hologramFactory,
-            @NotNull HologramTextGenerator<TrackedPlayer> textGenerator
-    ) {
     }
 
 }

@@ -11,6 +11,8 @@ schedula = "b902674126"
 packetevents = "2.13.0"
 configurate = "4.2.0"
 cloud-paper = "2.0.0"
+cloud-core = "2.0.0"
+minestom = "2026.10.07-26.2"
 
 junit = "6.1.3"
 junit-platform = "6.1.3"
@@ -32,6 +34,8 @@ schedula-common = { module = "com.github.g4vrk.Schedula:common", version.ref = "
 packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
 configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-paper" }
+cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud-core" }
+minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
