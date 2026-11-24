@@ -14,9 +14,10 @@ rootProject.name = "ReactHologramAddon"
 
 include(
     "common",
-    "minestom",
-    "sponge",
-    "fabric"
+    "platform:bukkit",
+    "platform:minestom",
+    "platform:sponge",
+    "platform:fabric"
 )
 
 dependencyResolutionManagement {

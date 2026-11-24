@@ -53,7 +53,7 @@ tasks.processResources {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    archiveFileName.set("hologram-addon-sponge-${project.version}.jar")
+    archiveFileName.set("${rootProject.name}-${project.name}-${project.version}.jar")
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     val commonClasses = project(":common").extensions.getByType<SourceSetContainer>()
         .named("main")

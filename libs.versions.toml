@@ -12,6 +12,8 @@ packetevents = "2.13.0"
 configurate = "4.2.0"
 cloud-paper = "2.0.0"
 cloud-core = "2.0.0"
+adventure-api = "4.10.0"
+fastutil = "8.5.12"
 minestom = "2026.10.07-26.2"
 sponge-api = "17.0.0"
 fabric-loom = "1.16.2"
@@ -43,6 +45,8 @@ packetevents = { module = "com.github.retrooper:packetevents-spigot", version.re
 configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-paper" }
 cloud-core = { module = "org.incendo:cloud-core", version.ref = "cloud-core" }
+adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure-api" }
+fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
 sponge-api = { module = "org.spongepowered:spongeapi", version.ref = "sponge-api" }
 packetevents-sponge = { module = "com.github.retrooper:packetevents-sponge", version.ref = "packetevents" }
