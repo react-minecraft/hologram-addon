@@ -63,7 +63,6 @@ tasks.processResources {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    archiveFileName.set("${rootProject.name}-${project.name}-${project.version}.jar")
     configurations = emptyList()
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     val commonClasses = project(":common").extensions.getByType<SourceSetContainer>()

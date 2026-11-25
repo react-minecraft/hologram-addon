@@ -95,7 +95,7 @@ subprojects {
 
         withType<ShadowJar>().configureEach {
 
-            archiveFileName = "${rootProject.name}-${project.name}-${project.version}.jar"
+            archiveFileName = "hologram-addon-${project.name}-${project.version}.jar"
             archiveClassifier = ""
 
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
