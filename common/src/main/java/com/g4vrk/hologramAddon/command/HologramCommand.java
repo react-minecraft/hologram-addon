@@ -9,7 +9,10 @@ import com.g4vrk.schedula.task.TickSchedule;
 import com.g4vrk.schedula.task.scheduler.TaskScheduler;
 import io.leangen.geantyref.TypeToken;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.incendo.cloud.key.CloudKey;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -28,11 +31,14 @@ import java.util.function.Supplier;
  * <p>Plain Cloud commands under the plugin's {@code /react} root; the plugin removes them with
  * the addon.</p>
  */
+@ApiStatus.Internal
 public final class HologramCommand {
 
     private static final String ROOT = "react";
     private static final String LITERAL = "hologram";
     private static final CloudKey<Collection<PlatformPlayer>> TARGETS = CloudKey.of("targets", new TypeToken<Collection<PlatformPlayer>>() {});
+    private static final Component CONSOLE_TARGETS_REQUIRED = Component.text("Specify target player(s): /react hologram resync <players>.", NamedTextColor.RED);
+    private static final Component NO_TARGETS_FOUND = Component.text("No matching online players found.", NamedTextColor.RED);
 
     private final ActionParser<Audience> parser;
     private final TaskScheduler<PlatformPlayer> scheduler;
@@ -42,11 +48,11 @@ public final class HologramCommand {
     private volatile MessageSet messages;
 
     public HologramCommand(
-            final @NotNull ActionParser<Audience> parser,
-            final @NotNull TaskScheduler<PlatformPlayer> scheduler,
-            final @NotNull Supplier<CompletableFuture<Void>> reload,
-            final @NotNull Consumer<PlatformPlayer> resync,
-            final @NotNull ConfigurationNode config
+        final @NotNull ActionParser<Audience> parser,
+        final @NotNull TaskScheduler<PlatformPlayer> scheduler,
+        final @NotNull Supplier<CompletableFuture<Void>> reload,
+        final @NotNull Consumer<PlatformPlayer> resync,
+        final @NotNull ConfigurationNode config
     ) {
 
         this.parser = parser;
@@ -57,49 +63,54 @@ public final class HologramCommand {
 
     }
 
-    public void reload(final @NotNull ConfigurationNode config) {
+    public void reload(
+        final @NotNull ConfigurationNode config
+    ) {
 
         this.messages = new MessageSet(
-                actions(config, "reload", "on-start"),
-                actions(config, "reload", "on-finish"),
-                actions(config, "reload", "on-failure"),
-                actions(config, "synchronization", "on-resync")
+            actions(config, "reload", "on-start"),
+            actions(config, "reload", "on-finish"),
+            actions(config, "reload", "on-failure"),
+            actions(config, "synchronization", "on-resync")
         );
 
     }
 
-    public void register(final @NotNull CommandRegistrar commands) {
+    public void register(
+        final @NotNull CommandRegistrar commands
+    ) {
 
         commands.register(
-                ROOT,
-                commands.command(ROOT)
-                        .literal(LITERAL)
-                        .literal("reload")
-                        .permission("react.hologram.reload")
-                        .handler(context -> reload(context.sender()))
+            ROOT,
+            commands.command(ROOT)
+                .literal(LITERAL)
+                .literal("reload")
+                .permission("react.hologram.reload")
+                .handler(context -> this.reload(context.sender()))
         );
 
         commands.register(
-                ROOT,
-                commands.command(ROOT)
-                        .literal(LITERAL)
-                        .literal("resync")
-                        .permission("react.hologram.resync")
-                        .argument(commands.multiplePlayersArgument(TARGETS, false))
-                        .handler(context -> resync(context.sender(), context.optional(TARGETS).orElse(null)))
+            ROOT,
+            commands.command(ROOT)
+                .literal(LITERAL)
+                .literal("resync")
+                .permission("react.hologram.resync")
+                .argument(commands.multiplePlayersArgument(TARGETS, false))
+                .handler(context -> this.resync(context.sender(), context.optional(TARGETS).orElse(null)))
         );
 
     }
 
-    private void reload(final @NotNull PlatformSender sender) {
+    private void reload(
+        final @NotNull PlatformSender sender
+    ) {
 
         this.messages.reloadStart().run(sender);
         this.reload.get().whenComplete((ignored, failure) -> {
-            final ExecutableActionList<? super Audience> response = failure == null
-                    ? this.messages.reloadFinish()
-                    : this.messages.reloadFailure();
+            final ExecutableActionList<? super Audience> response = failure == null ? this.messages.reloadFinish() : this.messages.reloadFailure();
             final Runnable notify = () -> response.run(sender);
             final PlatformPlayer player = sender.asPlayer();
+
             if (player != null) {
                 this.scheduler.scheduleEntity(player, notify, TickSchedule.instant());
             } else {
@@ -110,8 +121,8 @@ public final class HologramCommand {
     }
 
     private void resync(
-            final @NotNull PlatformSender sender,
-            final @Nullable Collection<PlatformPlayer> selector
+        final @NotNull PlatformSender sender,
+        final @Nullable Collection<PlatformPlayer> selector
     ) {
 
         final Collection<PlatformPlayer> targets;
@@ -122,17 +133,23 @@ public final class HologramCommand {
         } else if (senderPlayer != null) {
             targets = List.of(senderPlayer);
         } else {
+            sender.sendMessage(CONSOLE_TARGETS_REQUIRED);
             return;
         }
 
         if (targets.isEmpty()) {
+            sender.sendMessage(NO_TARGETS_FOUND);
             return;
         }
 
         final List<String> names = new ArrayList<>(targets.size());
 
         for (final PlatformPlayer target : targets) {
-            this.resync.accept(target);
+            this.scheduler.scheduleEntity(
+                target,
+                () -> this.resync.accept(target),
+                TickSchedule.instant()
+            );
             names.add(target.name());
         }
 
@@ -142,8 +159,8 @@ public final class HologramCommand {
     }
 
     private @NotNull ExecutableActionList<? super Audience> actions(
-            final @NotNull ConfigurationNode config,
-            final @NotNull String... path
+        final @NotNull ConfigurationNode config,
+        final @NotNull String... path
     ) {
 
         try {
@@ -155,10 +172,10 @@ public final class HologramCommand {
     }
 
     private record MessageSet(
-            @NotNull ExecutableActionList<? super Audience> reloadStart,
-            @NotNull ExecutableActionList<? super Audience> reloadFinish,
-            @NotNull ExecutableActionList<? super Audience> reloadFailure,
-            @NotNull ExecutableActionList<? super Audience> resynced
+        @NotNull ExecutableActionList<? super Audience> reloadStart,
+        @NotNull ExecutableActionList<? super Audience> reloadFinish,
+        @NotNull ExecutableActionList<? super Audience> reloadFailure,
+        @NotNull ExecutableActionList<? super Audience> resynced
     ) {
     }
 

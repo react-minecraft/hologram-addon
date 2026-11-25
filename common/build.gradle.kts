@@ -16,6 +16,5 @@ dependencies {
     compileOnly(libs.cloud.core)
     compileOnly(libs.configurate.yaml)
     compileOnly(libs.adventure.api)
-    compileOnly(libs.fastutil)
 
 }

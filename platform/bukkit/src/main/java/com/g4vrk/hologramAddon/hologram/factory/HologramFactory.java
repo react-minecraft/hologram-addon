@@ -5,8 +5,13 @@ import com.g4vrk.hologramAddon.hologram.config.impl.LegacyHologramConfiguration;
 import com.g4vrk.hologramAddon.hologram.config.impl.ModernHologramConfiguration;
 import com.g4vrk.hologramAddon.hologram.impl.VersionedTargetedHologram;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Creates version-aware targeted holograms from loaded display configurations.
+ */
+@ApiStatus.Internal
 public final class HologramFactory {
 
     private final ModernHologramConfiguration modernHologramConfiguration;
@@ -14,18 +19,9 @@ public final class HologramFactory {
     private final boolean createTeam;
 
     public HologramFactory(
-            @NotNull ModernHologramConfiguration modernHologramConfiguration,
-            @NotNull LegacyHologramConfiguration legacyHologramConfiguration
-    ) {
-
-        this(modernHologramConfiguration, legacyHologramConfiguration, true);
-
-    }
-
-    public HologramFactory(
-            @NotNull ModernHologramConfiguration modernHologramConfiguration,
-            @NotNull LegacyHologramConfiguration legacyHologramConfiguration,
-            boolean createTeam
+        final @NotNull ModernHologramConfiguration modernHologramConfiguration,
+        final @NotNull LegacyHologramConfiguration legacyHologramConfiguration,
+        final boolean createTeam
     ) {
 
         this.modernHologramConfiguration = modernHologramConfiguration;
@@ -35,10 +31,10 @@ public final class HologramFactory {
     }
 
     public @NotNull TargetedHologram create(
-            final @NotNull Player target
+        final @NotNull Player target
     ) {
 
-        return new VersionedTargetedHologram(target, modernHologramConfiguration, legacyHologramConfiguration, createTeam);
+        return new VersionedTargetedHologram(target, this.modernHologramConfiguration, this.legacyHologramConfiguration, this.createTeam);
 
     }
 

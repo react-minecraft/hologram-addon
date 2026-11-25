@@ -7,16 +7,21 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class ConnectionListener implements Listener {
+/**
+ * Registers and unregisters hologram viewers on join and quit.
+ */
+@ApiStatus.Internal
+public final class ConnectionListener implements Listener {
 
     private final HologramViewerManager hologramViewerManager;
 
     public ConnectionListener(
-            @NotNull HologramViewerManager hologramViewerManager
+        final @NotNull HologramViewerManager hologramViewerManager
     ) {
 
         this.hologramViewerManager = hologramViewerManager;
@@ -24,23 +29,24 @@ public class ConnectionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(final PlayerJoinEvent event) {
+    public void onPlayerJoin(
+        final @NotNull PlayerJoinEvent event
+    ) {
 
         final Player player = event.getPlayer();
-
-        hologramViewerManager.add(player.getUniqueId());
+        this.hologramViewerManager.add(player.getUniqueId());
 
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerQuit(final PlayerQuitEvent event) {
+    public void onPlayerQuit(
+        final @NotNull PlayerQuitEvent event
+    ) {
 
         final Player player = event.getPlayer();
         final UUID uniqueId = player.getUniqueId();
-
-        hologramViewerManager.remove(uniqueId);
+        this.hologramViewerManager.remove(uniqueId);
 
     }
-
 
 }

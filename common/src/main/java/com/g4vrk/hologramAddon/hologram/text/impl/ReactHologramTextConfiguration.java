@@ -1,43 +1,34 @@
 package com.g4vrk.hologramAddon.hologram.text.impl;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Text formatting settings for React player holograms.
+ */
+@ApiStatus.Internal
 public final class ReactHologramTextConfiguration {
 
-    private static final List<String> DEFAULT_LINES = List.of(
-            "<gray>ᴀᴠɢ ᴘʀᴏʙ </gray>{statistic:avg-probability:colored}<gray> | ᴍᴀx ᴘʀᴏʙ </gray>{statistic:max-probability:colored}",
-            "{history:last-5}"
-    );
+    private static final List<String> DEFAULT_LINES = List.of("<gray>ᴀᴠɢ ᴘʀᴏʙ </gray>{statistic:avg-probability:colored}<gray> | ᴍᴀx ᴘʀᴏʙ </gray>{statistic:max-probability:colored}", "{history:last-5}");
 
     private final List<String> lines;
-
     private final String probabilityFormat;
-
     private final String historySeparator;
 
     public ReactHologramTextConfiguration(
-            @NotNull ConfigurationNode node
+        final @NotNull ConfigurationNode node
     ) {
 
-        this.lines = readLines(
-                node.node("lines")
-        );
-
-        this.probabilityFormat = validateFormat(
-                node.node("format", "probability")
-                        .getString("0.000%")
-        );
-
-        this.historySeparator = node
-                .node("history", "separator")
-                .getString(" ");
+        this.lines = readLines(node.node("lines"));
+        this.probabilityFormat = validateFormat(node.node("format", "probability").getString("0.000%"));
+        this.historySeparator = node.node("history", "separator").getString(" ");
 
     }
 
@@ -59,13 +50,13 @@ public final class ReactHologramTextConfiguration {
 
     }
 
-    private @NotNull List<String> readLines(
-            final @NotNull ConfigurationNode node
+    private static @NotNull List<String> readLines(
+        final @NotNull ConfigurationNode node
     ) {
 
-        final List<String> result = new ObjectArrayList<>();
+        final List<String> result = new ArrayList<>();
 
-        for (ConfigurationNode child : node.childrenList()) {
+        for (final ConfigurationNode child : node.childrenList()) {
             final String value = child.getString();
 
             if (value != null && !value.isBlank()) {
@@ -81,24 +72,17 @@ public final class ReactHologramTextConfiguration {
 
     }
 
-    private @NotNull String validateFormat(
-            final @NotNull String format
+    private static @NotNull String validateFormat(
+        final @NotNull String format
     ) {
 
         try {
-            new DecimalFormat(
-                    format,
-                    DecimalFormatSymbols.getInstance(Locale.US)
-            );
-
+            new DecimalFormat(format, DecimalFormatSymbols.getInstance(Locale.US));
             return format;
-
         } catch (final IllegalArgumentException ex) {
-            throw new IllegalArgumentException(
-                    "Invalid decimal format: " + format,
-                    ex
-            );
+            throw new IllegalArgumentException("Invalid decimal format: " + format, ex);
         }
 
     }
+
 }
